@@ -6,6 +6,7 @@
 " Copyright:	Copyright (C) 2006-2007 cheng fang. All rights reserved.
 " License:	Vim License	(see vim's :help license)
 
+let g:javacomplete_log_level = 3
 
 " constants							{{{1
 " input context type
@@ -2112,7 +2113,7 @@ fu! javacomplete#SetLogLevel(level)
 endfu
 
 fu! javacomplete#GetLogLevel()
-  return exists('s:loglevel') ? s:loglevel : 3
+  return exists('s:loglevel') ? g:loglevel : g:javacomplete_log_level
 endfu
 
 fu! javacomplete#GetLogContent()
