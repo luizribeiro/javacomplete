@@ -1,0 +1,413 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_JP_AUTHOR	HIGASHI Hirohito	/Twitter: @h_east/
+!_TAG_PROGRAM_JP_URL	http://hp.vector.co.jp/authors/VA025040/	//
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.6b1J2	//
+AddToParent	Reflection.java	/^    public static void AddToParent(Hashtable map, String parent, String child) {$/;"	m	class:Reflection
+ArrayAccess	javacomplete.vim	/^fu! s:ArrayAccess(arraytype, expr)$/;"	f
+Binary	java_parser.vim	/^fu! s:Binary(pos, opcode, lhs, rhs, ...)$/;"	f
+BitAnd	java_parser.vim	/^fu! s:BitAnd(n1, n2)$/;"	f
+BitMoveLeft	java_parser.vim	/^fu! s:BitMoveLeft()$/;"	f
+BitMoveRight	java_parser.vim	/^fu! s:BitMoveRight()$/;"	f
+BitNot	java_parser.vim	/^fu! s:BitNot(v)$/;"	f
+BitNot_binary	java_parser.vim	/^fu! s:BitNot_binary(v)$/;"	f
+BitOperator_binary	java_parser.vim	/^fu! s:BitOperator_binary(n1, n2, comparator)$/;"	f
+BitOr	java_parser.vim	/^fu! s:BitOr(n1, n2, ...)$/;"	f
+BitXor	java_parser.vim	/^fu! s:BitXor(n1, n2)$/;"	f
+Bits2Number	java_parser.vim	/^fu! s:Bits2Number(bits)$/;"	f
+CanAccess	javacomplete.vim	/^fu! s:CanAccess(mods, kind)$/;"	f
+ClassDef	java_parser.vim	/^fu! s:ClassDef(pos, mods, ...)$/;"	f
+CountDims	javacomplete.vim	/^fu! s:CountDims(str)$/;"	f
+Debug	java_parser.vim	/^fu! s:Debug(msg)$/;"	f
+DetermineMethod	javacomplete.vim	/^fu! s:DetermineMethod(methods, parameters)$/;"	f
+DoGetFieldList	javacomplete.vim	/^fu! s:DoGetFieldList(fields)$/;"	f
+DoGetPackageInfoInDirs	javacomplete.vim	/^fu! s:DoGetPackageInfoInDirs(package, onlyPackages, ...)$/;"	f
+ExtractCleanExpr	javacomplete.vim	/^fu! s:ExtractCleanExpr(expr)$/;"	f
+FoundClassLocally	javacomplete.vim	/^fu! s:FoundClassLocally(type)$/;"	f
+GenerateImports	javacomplete.vim	/^function! s:GenerateImports()$/;"	f
+GetClassDeclarationOf	javacomplete.vim	/^function! s:GetClassDeclarationOf(type)$/;"	f
+GetClassDirs	javacomplete.vim	/^fu! s:GetClassDirs()$/;"	f
+GetClassPathOfJsp	javacomplete.vim	/^fu! s:GetClassPathOfJsp()$/;"	f
+GetDeclaredClassName	javacomplete.vim	/^function! s:GetDeclaredClassName(var)$/;"	f
+GetJavaCompleteClassPath	javacomplete.vim	/^fu! s:GetJavaCompleteClassPath()$/;"	f
+GetMatchedIndexEx	javacomplete.vim	/^function! s:GetMatchedIndexEx(str, idx, one, another)$/;"	f
+GetMethodInvocationExpr	javacomplete.vim	/^fu! s:GetMethodInvocationExpr(expr)$/;"	f
+GetStatement	javacomplete.vim	/^function! s:GetStatement()$/;"	f
+GetStaticMemberList	javacomplete.vim	/^fu! s:GetStaticMemberList(class)$/;"	f
+GetThisClassDeclaration	javacomplete.vim	/^function! s:GetThisClassDeclaration()$/;"	f
+GetVariableDeclaration	javacomplete.vim	/^function! s:GetVariableDeclaration()$/;"	f
+GotoUpperBracket	javacomplete.vim	/^fu! s:GotoUpperBracket()$/;"	f
+INDEX_CLASS	Reflection.java	/^    private static int INDEX_CLASS = 1;$/;"	f	class:Reflection	file:
+INDEX_PACKAGE	Reflection.java	/^    private static int INDEX_PACKAGE = 0;$/;"	f	class:Reflection	file:
+Ident	java_parser.vim	/^fu! s:Ident(pos, name)$/;"	f
+InComment	javacomplete.vim	/^function! s:InComment(line, col)$/;"	f
+InCommentOrLiteral	javacomplete.vim	/^fu! s:InCommentOrLiteral(line, col)$/;"	f
+Index	javacomplete.vim	/^fu! s:Index(list, expr, key)$/;"	f
+Info	java_parser.vim	/^fu! s:Info(msg)$/;"	f
+IsSpecial	java_parser.vim	/^fu! s:IsSpecial(ch)$/;"	f
+IsStatic	javacomplete.vim	/^fu! s:IsStatic(modifier)$/;"	f
+KEY_DECLARING_CLASS	Reflection.java	/^    static final String KEY_DECLARING_CLASS	= "'c':";	\/\/ "'declaringclass':";$/;"	f	class:Reflection
+KEY_DESCRIPTION	Reflection.java	/^    static final String KEY_DESCRIPTION		= "'d':";	\/\/ "'description':";$/;"	f	class:Reflection
+KEY_MODIFIER	Reflection.java	/^    static final String KEY_MODIFIER		= "'m':";	\/\/ "'modifier':";$/;"	f	class:Reflection
+KEY_NAME	Reflection.java	/^    static final String KEY_NAME		= "'n':";	\/\/ "'name':";$/;"	f	class:Reflection
+KEY_PARAMETERTYPES	Reflection.java	/^    static final String KEY_PARAMETERTYPES	= "'p':";	\/\/ "'parameterTypes':";$/;"	f	class:Reflection
+KEY_RETURNTYPE	Reflection.java	/^    static final String KEY_RETURNTYPE		= "'r':";	\/\/ "'returnType':";$/;"	f	class:Reflection
+KEY_TYPE	Reflection.java	/^    static final String KEY_TYPE		= "'t':";	\/\/ "'type':";$/;"	f	class:Reflection
+KeepCursor	javacomplete.vim	/^fu! s:KeepCursor(cmd)$/;"	f
+LexError	java_parser.vim	/^fu! s:LexError(key, ...)$/;"	f
+Log	java_parser.vim	/^fu! s:Log(level, pos, key, ...)$/;"	f
+Log	javacomplete.vim	/^fu! s:Log(level, key, ...)$/;"	f
+Match	java_parser.vim	/^fu! s:Match(pat)$/;"	f
+Match	javacomplete.vim	/^fu! s:Match(list, expr, key)$/;"	f
+MemberCompare	javacomplete.vim	/^fu! s:MemberCompare(m1, m2)$/;"	f
+MergeLines	javacomplete.vim	/^fu! s:MergeLines(lnum, col, lnum_old, col_old)$/;"	f
+MethodInvocation	javacomplete.vim	/^fu! s:MethodInvocation(expr, ti, itemkind)$/;"	f
+Modifiers	java_parser.vim	/^fu! s:Modifiers(pos, flags, annotations)$/;"	f
+MyBalloonExpr	javacomplete.vim	/^function! MyBalloonExpr()$/;"	f
+NEWLINE	Reflection.java	/^    static final String NEWLINE = "";	\/\/ "\\r\\n"$/;"	f	class:Reflection
+Number2Bits	java_parser.vim	/^fu! s:Number2Bits(n, ...)$/;"	f
+OPTION_ALL	Reflection.java	/^    static final int OPTION_ALL			= 31;	\/\/ compound all$/;"	f	class:Reflection
+OPTION_CONSTRUCTOR	Reflection.java	/^    static final int OPTION_CONSTRUCTOR		= 16;$/;"	f	class:Reflection
+OPTION_FIELD	Reflection.java	/^    static final int OPTION_FIELD		=  1;$/;"	f	class:Reflection
+OPTION_INSTANCE	Reflection.java	/^    static final int OPTION_INSTANCE		= 15;	\/\/ compound instance$/;"	f	class:Reflection
+OPTION_METHOD	Reflection.java	/^    static final int OPTION_METHOD		=  2;$/;"	f	class:Reflection
+OPTION_SAME_PACKAGE	Reflection.java	/^    static final int OPTION_SAME_PACKAGE	= 64;$/;"	f	class:Reflection
+OPTION_STATIC	Reflection.java	/^    static final int OPTION_STATIC		= 12;	\/\/ compound static$/;"	f	class:Reflection
+OPTION_STATIC_FIELD	Reflection.java	/^    static final int OPTION_STATIC_FIELD	=  4;$/;"	f	class:Reflection
+OPTION_STATIC_METHOD	Reflection.java	/^    static final int OPTION_STATIC_METHOD	=  8;$/;"	f	class:Reflection
+OPTION_SUPER	Reflection.java	/^    static final int OPTION_SUPER		= 32;$/;"	f	class:Reflection
+Pos2Str	java_parser.vim	/^fu! s:Pos2Str(pos)$/;"	f
+ProcessParentheses	javacomplete.vim	/^fu! s:ProcessParentheses(expr, ...)$/;"	f
+Prune	javacomplete.vim	/^function! s:Prune(str, ...)$/;"	f
+RETURN_ALL_PACKAGE_INFO	Reflection.java	/^    static final int RETURN_ALL_PACKAGE_INFO	= 0x1000;$/;"	f	class:Reflection
+Reflection	Reflection.java	/^class Reflection {$/;"	c
+RemoveBlockComments	javacomplete.vim	/^fu! s:RemoveBlockComments(str, ...)$/;"	f
+ReportSyntaxError	java_parser.vim	/^fu! s:ReportSyntaxError(pos, key, ...)$/;"	f
+STRATEGY_ALPHABETIC	Reflection.java	/^    static final int STRATEGY_ALPHABETIC	= 128;$/;"	f	class:Reflection
+STRATEGY_DEFAULT	Reflection.java	/^    static final int STRATEGY_DEFAULT		= 512;$/;"	f	class:Reflection
+STRATEGY_HIERARCHY	Reflection.java	/^    static final int STRATEGY_HIERARCHY		= 256;$/;"	f	class:Reflection
+SearchMember	javacomplete.vim	/^fu! s:SearchMember(ci, name, fullmatch, kind, returnAll, memberkind, ...)$/;"	f
+SearchNameInAST	javacomplete.vim	/^fu! s:SearchNameInAST(tree, name, targetPos, fullmatch)$/;"	f
+SearchPairBackward	javacomplete.vim	/^function! s:SearchPairBackward(str, idx, one, another)$/;"	f
+SearchSingleTypeImport	javacomplete.vim	/^fu! s:SearchSingleTypeImport(name, fqns)$/;"	f
+SearchStaticImports	javacomplete.vim	/^fu! s:SearchStaticImports(name, fullmatch)$/;"	f
+Searchdecl	javacomplete.vim	/^fu! s:Searchdecl(name, ...)$/;"	f
+Select	java_parser.vim	/^fu! s:Select(pos, selected, name)$/;"	f
+SetCurrentFileKey	javacomplete.vim	/^fu! s:SetCurrentFileKey()$/;"	f
+ShowWatch	java_parser.vim	/^fu! s:ShowWatch(...)$/;"	f
+SkipLineComment	java_parser.vim	/^fu! s:SkipLineComment()$/;"	f
+SplitAt	javacomplete.vim	/^fu! s:SplitAt(str, index)$/;"	f
+Stridx	java_parser.vim	/^fu! s:Stridx(needle)$/;"	f
+String2Flags	java_parser.vim	/^fu! s:String2Flags(str)$/;"	f
+Strpart	java_parser.vim	/^fu! Strpart(start, len)$/;"	f
+SyntaxError	java_parser.vim	/^fu! s:SyntaxError(key, ...)$/;"	f
+Trace	java_parser.vim	/^fu! s:Trace(msg)$/;"	f
+Tree2ClassInfo	javacomplete.vim	/^fu! s:Tree2ClassInfo(t)$/;"	f
+Trim	javacomplete.vim	/^fu! s:Trim(str)$/;"	f
+TypeArray	java_parser.vim	/^fu! s:TypeArray(pos, elementtype)$/;"	f
+TypeCast	java_parser.vim	/^fu! s:TypeCast(pos, clazz, expr)$/;"	f
+Unary	java_parser.vim	/^fu! s:Unary(pos, opcode, arg)$/;"	f
+UpdateFQN	javacomplete.vim	/^fu! s:UpdateFQN(tree, qn)$/;"	f
+VERSION	Reflection.java	/^    static final String VERSION	= "0.77";$/;"	f	class:Reflection
+VarDef	java_parser.vim	/^fu! s:VarDef(pos, mods, name, vartype)$/;"	f
+accept	java_parser.vim	/^fu! s:accept(token_type)$/;"	f
+addClasspathesFromDir	Reflection.java	/^    private static void addClasspathesFromDir(String dirpath) {$/;"	m	class:Reflection	file:
+annotation	java_parser.vim	/^fu! s:annotation(pos)$/;"	f
+annotationFieldValue	java_parser.vim	/^fu! s:annotationFieldValue()$/;"	f
+annotationFieldValues	java_parser.vim	/^fu! s:annotationFieldValues()$/;"	f
+annotationFieldValuesOpt	java_parser.vim	/^fu! s:annotationFieldValuesOpt()$/;"	f
+annotationValue	java_parser.vim	/^fu! s:annotationValue()$/;"	f
+annotationsOpt	java_parser.vim	/^fu! s:annotationsOpt()$/;"	f
+appendDeclaredMembers	Reflection.java	/^    private static void appendDeclaredMembers(Hashtable map, Class clazz, StringBuffer sb) {$/;"	m	class:Reflection	file:
+appendListFromFolder	Reflection.java	/^    public static void appendListFromFolder(Hashtable subpackages, Hashtable classes, String path, String prefix) {$/;"	m	class:Reflection
+appendListFromJar	Reflection.java	/^    public static void appendListFromJar(Hashtable subpackages, Hashtable classes, String path, String prefix) {$/;"	m	class:Reflection
+appendListFromJar	Reflection.java	/^    public static void appendListFromJar(String path, Hashtable map) {$/;"	m	class:Reflection
+appendModifier	Reflection.java	/^    private static void appendModifier(StringBuffer sb, int modifier) {$/;"	m	class:Reflection	file:
+appendParameterTypes	Reflection.java	/^    private static void appendParameterTypes(StringBuffer sb, Class[] paramTypes) {$/;"	m	class:Reflection	file:
+arguments	java_parser.vim	/^fu! s:arguments(...)$/;"	f
+argumentsOpt	java_parser.vim	/^fu! s:argumentsOpt(typeArgs, t)$/;"	f
+arrayCreatorRest	java_parser.vim	/^fu! s:arrayCreatorRest(newpos, elemtype)$/;"	f
+arrayInitializer	java_parser.vim	/^fu! s:arrayInitializer(newpos, t)$/;"	f
+b:context_type	javacomplete.vim	/^let b:context_type = s:CONTEXT_OTHER$/;"	v
+b:dotexpr	javacomplete.vim	/^let b:dotexpr      = ''$/;"	v
+b:errormsg	javacomplete.vim	/^let b:errormsg     = ''$/;"	v
+b:incomplete	javacomplete.vim	/^let b:incomplete   = ''$/;"	v
+basicType	java_parser.vim	/^fu! s:basicType()$/;"	f
+block	java_parser.vim	/^fu! s:block(...)$/;"	f
+blockStatements	java_parser.vim	/^fu! s:blockStatements()$/;"	f
+bracketsOpt	java_parser.vim	/^fu! s:bracketsOpt(t)$/;"	f
+bracketsOptCont	java_parser.vim	/^fu! s:bracketsOptCont(t, pos)$/;"	f
+bracketsSuffix	java_parser.vim	/^fu! s:bracketsSuffix(t)$/;"	f
+call_system	javacomplete.vim	/^function! s:call_system(cmd, caller)$/;"	f
+catchClause	java_parser.vim	/^fu! s:catchClause()$/;"	f
+checkExprStat	java_parser.vim	/^fu! s:checkExprStat(t)$/;"	f
+classCreatorRest	java_parser.vim	/^fu! s:classCreatorRest(newpos, encl, typeArgs, t)$/;"	f
+classDeclaration	java_parser.vim	/^fu! s:classDeclaration(mods, dc)$/;"	f
+classOrInterfaceBody	java_parser.vim	/^fu! s:classOrInterfaceBody(classname, isInterface)$/;"	f
+classOrInterfaceBodyDeclaration	java_parser.vim	/^fu! s:classOrInterfaceBodyDeclaration(classname, isInterface)$/;"	f
+classOrInterfaceBodyDeclaration_opt	java_parser.vim	/^fu! s:classOrInterfaceBodyDeclaration_opt(classname, isInterface)$/;"	f
+classOrInterfaceOrEnumDeclaration	java_parser.vim	/^fu! s:classOrInterfaceOrEnumDeclaration(mods, dc)$/;"	f
+collectClassPath	Reflection.java	/^    private static Hashtable collectClassPath() {$/;"	m	class:Reflection	file:
+compilationUnit	java_parser.vim	/^fu! s:compilationUnit()$/;"	f
+complete_after_dot	javacomplete.vim	/^function! s:complete_after_dot(expr)$/;"	f
+complete_after_word	javacomplete.vim	/^fu! s:complete_after_word(incomplete)$/;"	f
+complete_incomplete_words	javacomplete.vim	/^function! s:complete_incomplete_words()$/;"	f
+complete_with_dot	javacomplete.vim	/^function! s:complete_with_dot()$/;"	f
+convertUnicode	java_parser.vim	/^fu! s:convertUnicode()$/;"	f
+creator	java_parser.vim	/^fu! s:creator(newpos, typeArgs)$/;"	f
+debug	Reflection.java	/^    static void debug(String s) {$/;"	m	class:Reflection
+debug	javacomplete.vim	/^fu! s:debug(msg)$/;"	f
+debug_mode	Reflection.java	/^    static boolean debug_mode = false;$/;"	f	class:Reflection
+digit	java_parser.vim	/^fu! s:digit(base)$/;"	f
+do_get_class_info	javacomplete.vim	/^fu! s:do_get_class_info(class, ...)$/;"	f
+do_get_class_info_from_tags	javacomplete.vim	/^function! s:do_get_class_info_from_tags(class)$/;"	f
+do_get_info_by_reflection	javacomplete.vim	/^fu! s:do_get_info_by_reflection(class, option)$/;"	f
+do_get_member_list	javacomplete.vim	/^fu! s:do_get_member_list(ci, kind)$/;"	f
+enumBody	java_parser.vim	/^fu! s:enumBody(enumName)$/;"	f
+enumDeclaration	java_parser.vim	/^fu! s:enumDeclaration(mods, dc)$/;"	f
+enumeratorDeclaration	java_parser.vim	/^fu! s:enumeratorDeclaration(enumName)$/;"	f
+existed	Reflection.java	/^    public static boolean existed(String fqn) {$/;"	m	class:Reflection
+existedAndRead	Reflection.java	/^    public static String existedAndRead(String fqns) {$/;"	m	class:Reflection
+expression	java_parser.vim	/^fu! s:expression()$/;"	f
+filter	javacomplete.vim	/^fu! s:filter(expr, string)$/;"	f
+findstart	javacomplete.vim	/^function! s:findstart()$/;"	f
+fnamecanonize	javacomplete.vim	/^fu! s:fnamecanonize(fname, mods)$/;"	f
+foldStrings	java_parser.vim	/^fu! s:foldStrings(tree)$/;"	f
+forInit	java_parser.vim	/^fu! s:forInit()$/;"	f
+forUpdate	java_parser.vim	/^fu! s:forUpdate()$/;"	f
+formalParameter	java_parser.vim	/^fu! s:formalParameter()$/;"	f
+formalParameters	java_parser.vim	/^fu! s:formalParameters()$/;"	f
+found_class_declaration	javacomplete.vim	/^function! s:found_class_declaration(type)$/;"	f
+g:javacomplete_log_level	javacomplete.vim	/^  let g:javacomplete_log_level = 3$/;"	v
+g:loaded_javaparser	java_parser.vim	/^let g:loaded_javaparser = 'v0.67'$/;"	v
+getClassInfo	Reflection.java	/^    public static String getClassInfo(String className) {$/;"	m	class:Reflection
+getPackageList	Reflection.java	/^    private static String getPackageList(String fqn) {$/;"	m	class:Reflection	file:
+getPackageList	Reflection.java	/^    public static String getPackageList() {$/;"	m	class:Reflection
+get_class_info_from_source	javacomplete.vim	/^fu! s:get_class_info_from_source(class, filename)$/;"	f
+get_class_path	javacomplete.vim	/^fu! s:get_class_path()$/;"	f
+get_constructor_list	javacomplete.vim	/^function! s:get_constructor_list(class)$/;"	f
+get_current_file_key	javacomplete.vim	/^fu! s:get_current_file_key()$/;"	f
+get_fqn	javacomplete.vim	/^fu! s:get_fqn(fqns, srcpath, ...)$/;"	f
+get_imports	javacomplete.vim	/^fu! s:get_imports(kind, ...)$/;"	f
+get_member_list	javacomplete.vim	/^function! s:get_member_list(class)$/;"	f
+get_members	javacomplete.vim	/^fu! s:get_members(fqn, ...)$/;"	f
+get_method_lsit	javacomplete.vim	/^fu! s:get_method_lsit(methods, ...)$/;"	f
+get_package_name	javacomplete.vim	/^fu! s:get_package_name()$/;"	f
+get_reflection_class_info	javacomplete.vim	/^function! s:get_reflection_class_info(fqn)$/;"	f
+get_source_dirs	javacomplete.vim	/^fu! s:get_source_dirs(filepath, ...)$/;"	f
+gotoMatchEnd	java_parser.vim	/^fu! s:gotoMatchEnd(one, another, ...)$/;"	f
+gotoSemi	java_parser.vim	/^fu! s:gotoSemi()$/;"	f
+has_keyword	javacomplete.vim	/^fu! s:has_keyword(name)$/;"	f
+htClasspath	Reflection.java	/^    static Hashtable htClasspath = new Hashtable();$/;"	f	class:Reflection
+ident	java_parser.vim	/^fu! s:ident()$/;"	f
+illegal	java_parser.vim	/^fu! s:illegal(...)$/;"	f
+importDeclaration	java_parser.vim	/^fu! s:importDeclaration()$/;"	f
+info	javacomplete.vim	/^fu! s:info(msg)$/;"	f
+innerCreator	java_parser.vim	/^fu! s:innerCreator(newpos, typeArgs, encl)$/;"	f
+interfaceDeclaration	java_parser.vim	/^fu! s:interfaceDeclaration(mods, dc)$/;"	f
+isBlank	Reflection.java	/^    private static boolean isBlank(String str) {$/;"	m	class:Reflection	file:
+isDigit	java_parser.vim	/^fu! s:isDigit(base)$/;"	f
+is_builtin_type	javacomplete.vim	/^fu! s:is_builtin_type(name)$/;"	f
+is_keyword	javacomplete.vim	/^fu! s:is_keyword(name)$/;"	f
+java_parser#CharAt	java_parser.vim	/^fu! java_parser#CharAt(line, col)$/;"	f
+java_parser#DecodePos	java_parser.vim	/^fu! java_parser#DecodePos(pos)$/;"	f
+java_parser#Exe	java_parser.vim	/^fu! java_parser#Exe(cmd)$/;"	f
+java_parser#FreeParser	java_parser.vim	/^fu! java_parser#FreeParser()$/;"	f
+java_parser#GetLogContent	java_parser.vim	/^fu! java_parser#GetLogContent()$/;"	f
+java_parser#GetLogLevel	java_parser.vim	/^fu! java_parser#GetLogLevel()$/;"	f
+java_parser#GetSnapshot	java_parser.vim	/^fu! java_parser#GetSnapshot()$/;"	f
+java_parser#GotoPosition	java_parser.vim	/^fu! java_parser#GotoPosition(pos)$/;"	f
+java_parser#InitParser	java_parser.vim	/^fu! java_parser#InitParser(lines, ...)$/;"	f
+java_parser#IsStatement	java_parser.vim	/^fu! java_parser#IsStatement(tree)$/;"	f
+java_parser#MakePos	java_parser.vim	/^fu! java_parser#MakePos(line, col)$/;"	f
+java_parser#Restore	java_parser.vim	/^fu! java_parser#Restore(snapshot)$/;"	f
+java_parser#SetLogLevel	java_parser.vim	/^fu! java_parser#SetLogLevel(level)$/;"	f
+java_parser#block	java_parser.vim	/^fu! java_parser#block()$/;"	f
+java_parser#compilationUnit	java_parser.vim	/^fu! java_parser#compilationUnit()$/;"	f
+java_parser#expression	java_parser.vim	/^fu! java_parser#expression()$/;"	f
+java_parser#nextToken	java_parser.vim	/^fu! java_parser#nextToken()$/;"	f
+java_parser#statement	java_parser.vim	/^fu! java_parser#statement()$/;"	f
+java_parser#type2Str	java_parser.vim	/^fu! java_parser#type2Str(type)$/;"	f
+javacomplete#AddClassPath	javacomplete.vim	/^fu! javacomplete#AddClassPath(s)$/;"	f
+javacomplete#AddSourcePath	javacomplete.vim	/^fu! javacomplete#AddSourcePath(s)$/;"	f
+javacomplete#Complete	javacomplete.vim	/^function! javacomplete#Complete(findstart, base)$/;"	f
+javacomplete#CompleteParamsInfo	javacomplete.vim	/^fu! javacomplete#CompleteParamsInfo(findstart, base)$/;"	f
+javacomplete#DelClassPath	javacomplete.vim	/^fu! javacomplete#DelClassPath(s)$/;"	f
+javacomplete#DelSourcePath	javacomplete.vim	/^fu! javacomplete#DelSourcePath(s)$/;"	f
+javacomplete#Exe	javacomplete.vim	/^fu! javacomplete#Exe(cmd)$/;"	f
+javacomplete#GetClassPath	javacomplete.vim	/^fu! javacomplete#GetClassPath()$/;"	f
+javacomplete#GetClassPathSep	javacomplete.vim	/^fu! javacomplete#GetClassPathSep()$/;"	f
+javacomplete#GetCompiler	javacomplete.vim	/^fu! javacomplete#GetCompiler()$/;"	f
+javacomplete#GetJVMLauncher	javacomplete.vim	/^fu! javacomplete#GetJVMLauncher()$/;"	f
+javacomplete#GetLogLevel	javacomplete.vim	/^fu! javacomplete#GetLogLevel()$/;"	f
+javacomplete#GetSearchdeclMethod	javacomplete.vim	/^fu! javacomplete#GetSearchdeclMethod()$/;"	f
+javacomplete#GetSourcePath	javacomplete.vim	/^fu! javacomplete#GetSourcePath(...)$/;"	f
+javacomplete#Searchdecl	javacomplete.vim	/^fu! javacomplete#Searchdecl()$/;"	f
+javacomplete#SetClassPath	javacomplete.vim	/^fu! javacomplete#SetClassPath(s)$/;"	f
+javacomplete#SetCompiler	javacomplete.vim	/^fu! javacomplete#SetCompiler(compiler)$/;"	f
+javacomplete#SetJVMLauncher	javacomplete.vim	/^fu! javacomplete#SetJVMLauncher(interpreter)$/;"	f
+javacomplete#SetLogLevel	javacomplete.vim	/^fu! javacomplete#SetLogLevel(level)$/;"	f
+javacomplete#SetSearchdeclMethod	javacomplete.vim	/^fu! javacomplete#SetSearchdeclMethod(method)$/;"	f
+javacomplete#SetSourcePath	javacomplete.vim	/^fu! javacomplete#SetSourcePath(s)$/;"	f
+javacomplete#UseJDK11	javacomplete.vim	/^fu! javacomplete#UseJDK11()$/;"	f
+javacomplete#clear_log	javacomplete.vim	/^fu! javacomplete#clear_log()$/;"	f
+javacomplete#log	javacomplete.vim	/^fu! javacomplete#log()$/;"	f
+javacomplete#parse	javacomplete.vim	/^fu! javacomplete#parse(...)$/;"	f
+literal	java_parser.vim	/^fu! s:literal(prefix)$/;"	f
+main	Reflection.java	/^    public static void main(String[] args) {$/;"	m	class:Reflection
+makeOp	java_parser.vim	/^fu! s:makeOp(pos, topOp, od1, od2)$/;"	f
+method2Str	java_parser.vim	/^fu! s:method2Str(methoddef)$/;"	f
+methodDeclaratorRest	java_parser.vim	/^fu! s:methodDeclaratorRest(pos, mods, type, name, typarams, isInterface, isVoid, dc)$/;"	f
+methodDeclaratorRest_opt	java_parser.vim	/^fu! s:methodDeclaratorRest_opt(pos, mods, type, name, typarams, isInterface, isVoid, dc, str, idx)$/;"	f
+modeAndEXPR	java_parser.vim	/^fu! s:modeAndEXPR()$/;"	f
+modeAndTYPE	java_parser.vim	/^fu! s:modeAndTYPE()$/;"	f
+modifiersOpt	java_parser.vim	/^fu! s:modifiersOpt(...)$/;"	f
+moreStatementExpressions	java_parser.vim	/^fu! s:moreStatementExpressions(pos, first, stats)$/;"	f
+nextToken	java_parser.vim	/^fu! s:nextToken()$/;"	f
+opPrec	java_parser.vim	/^fu! s:opPrec(tag)$/;"	f
+optFinal	java_parser.vim	/^fu! s:optFinal(flags)$/;"	f
+optFinalParameter	java_parser.vim	/^fu! s:optFinalParameter()$/;"	f
+optag	java_parser.vim	/^fu! s:optag(token)$/;"	f
+output	Reflection.java	/^    static void output(String s) {$/;"	m	class:Reflection
+parExpression	java_parser.vim	/^fu! s:parExpression()$/;"	f
+parse_expr	javacomplete.vim	/^fu! s:parse_expr(expr)$/;"	f
+prec	java_parser.vim	/^fu! s:prec(token)$/;"	f
+putClassInfo	Reflection.java	/^    private static void putClassInfo(Hashtable map, Class clazz) {$/;"	m	class:Reflection	file:
+putItem	Reflection.java	/^    public static void putItem(Hashtable map, String parent, String child, int index) {$/;"	m	class:Reflection
+putPackageInfo	Reflection.java	/^    private static void putPackageInfo(Hashtable map, String name) {$/;"	m	class:Reflection	file:
+qualident	java_parser.vim	/^fu! s:qualident()$/;"	f
+run_reflection	javacomplete.vim	/^fu! s:run_reflection(option, args, log)$/;"	f
+s:ARRAY_TYPE_INFO	javacomplete.vim	/^let s:ARRAY_TYPE_INFO = {'tag': 'CLASSDEF', 'name': '[', 'ctors': [], $/;"	v
+s:ARRAY_TYPE_MEMBERS	javacomplete.vim	/^let s:ARRAY_TYPE_MEMBERS = [$/;"	v
+s:CONTEXT_AFTER_DOT	javacomplete.vim	/^let s:CONTEXT_AFTER_DOT     = 1$/;"	v
+s:CONTEXT_IMPORT	javacomplete.vim	/^let s:CONTEXT_IMPORT        = 3$/;"	v
+s:CONTEXT_IMPORT_STATIC	javacomplete.vim	/^let s:CONTEXT_IMPORT_STATIC = 4$/;"	v
+s:CONTEXT_METHOD_PARAM	javacomplete.vim	/^let s:CONTEXT_METHOD_PARAM  = 2$/;"	v
+s:CONTEXT_NEED_TYPE	javacomplete.vim	/^let s:CONTEXT_NEED_TYPE     = 7 $/;"	v
+s:CONTEXT_OTHER	javacomplete.vim	/^let s:CONTEXT_OTHER         = 0$/;"	v
+s:CONTEXT_PACKAGE_DECL	javacomplete.vim	/^let s:CONTEXT_PACKAGE_DECL  = 6 $/;"	v
+s:EOI	java_parser.vim	/^let s:EOI = ''$/;"	v
+s:EXPR	java_parser.vim	/^let s:EXPR = 1$/;"	v
+s:EXPR_OR_TYPE	java_parser.vim	/^let s:EXPR_OR_TYPE = 3$/;"	v
+s:EXPR_OR_TYPE_OR_NOPARAMS	java_parser.vim	/^let s:EXPR_OR_TYPE_OR_NOPARAMS = 7$/;"	v
+s:FILE_SEP	javacomplete.vim	/^  let s:FILE_SEP  = '\\'$/;"	v
+s:FILE_SEP	javacomplete.vim	/^let s:FILE_SEP  = '\/'$/;"	v
+s:Flags	java_parser.vim	/^let s:Flags = {'PUBLIC': 0x1, 'PRIVATE': 0x2, 'PROTECTED': 0x4, 'STATIC': 0x8, 'FINAL': 0x10, 'SYNCHRONIZED': 0x20, 'VOLATILE': 0x40, 'TRANSIENT': 0x80, 'NATIVE': 0x100, 'INTERFACE': 0x200, 'ABSTRACT': 0x400, 'STRICTFP': 0x800, 'SYNTHETIC': 0x1000, 'ANNOTATION': 0x2000, 'ENUM': 	0x4000, 'StandardFlags':0x0fff, 'ACC_SUPER': 0x20, 'ACC_BRIDGE': 0x40, 'ACC_VARARGS': 0x80, 'DEPRECATED': 0x20000, 'HASINIT': 0x40000, 'BLOCK': 0x100000, 'IPROXY': 0x200000, 'NOOUTERTHIS': 0x400000, 'EXISTS': 0x800000, 'COMPOUND': 0x1000000, 'CLASS_SEEN': 0x2000000, 'SOURCE_SEEN': 0x4000000, 'LOCKED': 0x8000000, 'UNATTRIBUTED': 0x10000000, 'ANONCONSTR': 0x20000000, 'ACYCLIC': 0x40000000, 'BRIDGE': 1.repeat('0', 31), 'PARAMETER': 1.repeat('0', 33), 'VARARGS': 1.repeat('0', 34), 'ACYCLIC_ANN': 1.repeat('0', 35), 'GENERATEDCONSTR': 1.repeat('0', 36), 'HYPOTHETICAL': 1.repeat('0', 37), 'PROPRIETARY': 1.repeat('0', 38)}$/;"	v
+s:JSP_BUILTIN_OBJECTS	javacomplete.vim	/^let s:JSP_BUILTIN_OBJECTS = {'session':  'javax.servlet.http.HttpSession',$/;"	v
+s:KEYWORDS	javacomplete.vim	/^let s:KEYWORDS         = s:PRIMITIVE_TYPES + s:KEYWORDS_MODS + s:KEYWORDS_TYPE + ['super', 'this', 'void'] + ['assert', 'break', 'case', 'catch', 'const', 'continue', 'default', 'do', 'else', 'extends', 'finally', 'for', 'goto', 'if', 'implements', 'import', 'instanceof', 'interface', 'new', 'package', 'return', 'switch', 'throw', 'throws', 'try', 'while', 'true', 'false', 'null']$/;"	v
+s:KEYWORDS_MODS	javacomplete.vim	/^let s:KEYWORDS_MODS    = ['public', 'private', 'protected', 'static', 'final', 'synchronized', 'volatile', 'transient', 'native', 'strictfp', 'abstract']$/;"	v
+s:KEYWORDS_TYPE	javacomplete.vim	/^let s:KEYWORDS_TYPE    = ['class', 'interface', 'enum']$/;"	v
+s:MapToken2Tag	java_parser.vim	/^let s:MapToken2Tag = {'BARBAR': 'OR', 'AMPAMP': 'AND', 'BAR': 'BITOR', 'BAREQ': 'BITOR_ASG', 'CARET': 'BITXOR', 'CARETEQ': 'BITXOR_ASG', 'AMP': 'BITAND', 'AMPEQ': 'BITAND_ASG', 'EQEQ': 'EQ', 'BANGEQ': 'NE', 'LT': 'LT', 'GT': 'GT', 'LTEQ': 'LE', 'GTEQ': 'GE', 'LTLT': 'SL', 'LTLTEQ': 'SL_ASG', 'GTGT': 'SR', 'GTGTEQ': 'SR_ASG', 'GTGTGT': 'USR', 'GTGTGTEQ': 'USR_ASG', 'PLUS': 'PLUS', 'PLUSEQ': 'PLUS_ASG', 'SUB': 'MINUS', 'SUBEQ': 'MINUS_ASG', 'STAR': 'MUL', 'STAREQ': 'MUL_ASG', 'SLASH': 'DIV', 'SLASHEQ': 'DIV_ASG', 'PERCENT': 'MOD', 'PERCENTEQ': 'MOD_ASG', 'INSTANCEOF': 'TYPETEST'}$/;"	v
+s:NOPARAMS	java_parser.vim	/^let s:NOPARAMS = 4$/;"	v
+s:PATH_SEP	javacomplete.vim	/^  let s:PATH_SEP  = ';'$/;"	v
+s:PATH_SEP	javacomplete.vim	/^let s:PATH_SEP  = ':'$/;"	v
+s:PRIMITIVE_TYPES	javacomplete.vim	/^let s:PRIMITIVE_TYPES  = ['boolean', 'byte', 'char', 'int', 'short', 'long', 'float', 'double']$/;"	v
+s:PRIMITIVE_TYPE_INFO	javacomplete.vim	/^let s:PRIMITIVE_TYPE_INFO = {'tag': 'CLASSDEF', 'name': '!', 'fields': [{'n': 'class','m': '1','t': 'Class'}]}$/;"	v
+s:PROTOTYPE	java_parser.vim	/^let s:PROTOTYPE = {'s:options': {}, 'b:buf': '', 'b:buflen': 0, 'b:lines': [], 'b:idxes': [0], 'b:bp': -1, 'b:ch': '', 'b:line': 0, 'b:col': 0, 'b:pos': 0, 'b:endPos': 0, 'b:prevEndPos': 0, 'b:errPos': -1, 'b:errorEndPos': -1, 'b:sbuf': '', 'b:name': '', 'b:token': '', 'b:docComment': '', 'b:radix': 0, 'b:unicodeConversionBp': -1, 'b:scanStrategy': 0, 'b:allowGenerics': 1, 'b:allowVarargs': 1, 'b:allowAsserts': 1, 'b:allowEnums': 1, 'b:allowForeach': 1, 'b:allowStaticImport': 1, 'b:allowAnnotations': 1, 'b:keepDocComments': 1, 'b:mode': 0, 'b:lastmode': 0, 'b:log': [], 'b:et_perf': '', 'b:et_nextToken_count': 0}$/;"	v
+s:RE_ANYTHING_AND_NEWLINE	java_parser.vim	/^let s:RE_ANYTHING_AND_NEWLINE	= '\\(\\(.\\|\\n\\)*\\)'$/;"	v
+s:RE_ARRAY_ACCESS	javacomplete.vim	/^let s:RE_ARRAY_ACCESS  = '^\\s*\\(' . s:RE_IDENTIFIER . '\\)\\s*\\(\\[.*\\]\\)\\+\\s*$'$/;"	v
+s:RE_ARRAY_TYPE	javacomplete.vim	/^let s:RE_ARRAY_TYPE  = '^\\s*\\(' .s:RE_QUALID . '\\)\\(' . s:RE_BRACKETS . '\\+\\)\\s*$'$/;"	v
+s:RE_BRACKETS	java_parser.vim	/^let s:RE_BRACKETS		= '\\(\\s*\\[\\s*\\]\\)'$/;"	v
+s:RE_BRACKETS	javacomplete.vim	/^let s:RE_BRACKETS    = '\\%(\\s*\\[\\s*\\]\\)'$/;"	v
+s:RE_CASTING	javacomplete.vim	/^let s:RE_CASTING  = '^\\s*(\\(' .s:RE_QUALID. '\\))\\s*\\(' . s:RE_IDENTIFIER . '\\)\\>'$/;"	v
+s:RE_COMMENT	java_parser.vim	/^let s:RE_COMMENT		= ''$/;"	v
+s:RE_COMMENT_SP	java_parser.vim	/^let s:RE_COMMENT_SP		= '\/\\*\\*\/'$/;"	v
+s:RE_FORMAL_PARAM	java_parser.vim	/^let s:RE_FORMAL_PARAM		= '\\(final\\s*\\)\\='. s:RE_TYPE . '\\s\\+' . s:RE_VAR_DECL_ID$/;"	v
+s:RE_FORMAL_PARAM2	java_parser.vim	/^let s:RE_FORMAL_PARAM2		= '^\\s*\\(final\\s*\\)\\=\\('. s:RE_TYPE . '\\)\\s\\+\\(' . s:RE_IDENTIFIER . '\\)' . s:RE_BRACKETS . '*'$/;"	v
+s:RE_FORMAL_PARAM_LIST	java_parser.vim	/^let s:RE_FORMAL_PARAM_LIST	= s:RE_FORMAL_PARAM . '\\(\\s*,\\s*' . s:RE_FORMAL_PARAM . '\\)*'$/;"	v
+s:RE_IDENTIFIER	java_parser.vim	/^let s:RE_IDENTIFIER		= '[a-zA-Z_$][a-zA-Z0-9_$]*'$/;"	v
+s:RE_IDENTIFIER	javacomplete.vim	/^let s:RE_IDENTIFIER  = '[a-zA-Z_$][a-zA-Z0-9_$]*'$/;"	v
+s:RE_KEYWORDS	javacomplete.vim	/^let s:RE_KEYWORDS  = '\\<\\%(' . join(s:KEYWORDS, '\\|') . '\\)\\>'$/;"	v
+s:RE_LINE_COMMENT	java_parser.vim	/^let s:RE_LINE_COMMENT		= '\/\/.*$'$/;"	v
+s:RE_MEMBER_HEADER	java_parser.vim	/^let s:RE_MEMBER_HEADER		= '\\s*\\(\\%(' .s:RE_MEMBER_MODS. '\\s\\+\\)\\+\\)\\(' .s:RE_IDENTIFIER. '\\%(\\s*\\.\\s*' .s:RE_IDENTIFIER. '\\)*\\%(\\s*\\[\\s*\\]\\)*\\)\\s\\+\\(' .s:RE_IDENTIFIER. '\\)'$/;"	v
+s:RE_MEMBER_MODS	java_parser.vim	/^let s:RE_MEMBER_MODS		= '\\%(PUBLIC\\|PROTECTED\\|PRIVATE\\|ABSTRACT\\|STATIC\\|FINAL\\|TRANSIENT\\|VOLATILE\\|SYNCHRONIZED\\|NATIVE\\|STRICTFP\\)'$/;"	v
+s:RE_QUALID	java_parser.vim	/^let s:RE_QUALID			= s:RE_IDENTIFIER. '\\(\\s*\\.\\s*' .s:RE_IDENTIFIER. '\\)*'$/;"	v
+s:RE_QUALID	javacomplete.vim	/^let s:RE_QUALID      = s:RE_IDENTIFIER. '\\%(\\s*\\.\\s*' .s:RE_IDENTIFIER. '\\)*'$/;"	v
+s:RE_REFERENCE_TYPE	java_parser.vim	/^let s:RE_REFERENCE_TYPE		= s:RE_QUALID . s:RE_BRACKETS . '*'		" TypeName	|| Type[]$/;"	v
+s:RE_REFERENCE_TYPE	javacomplete.vim	/^let s:RE_REFERENCE_TYPE  = s:RE_QUALID . s:RE_BRACKETS . '*'$/;"	v
+s:RE_SELECT_OR_ACCESS	javacomplete.vim	/^let s:RE_SELECT_OR_ACCESS  = '^\\s*\\(' . s:RE_IDENTIFIER . '\\)\\s*\\(\\[.*\\]\\)\\=\\s*$'$/;"	v
+s:RE_THROWS	java_parser.vim	/^let s:RE_THROWS			= 'throws\\s\\+' . s:RE_TYPE_NAME . '\\(\\s*,\\s*' . s:RE_TYPE_NAME . '\\)*'$/;"	v
+s:RE_TYPE	java_parser.vim	/^let s:RE_TYPE			= s:RE_REFERENCE_TYPE		" PrimitiveType || ReferenceType$/;"	v
+s:RE_TYPE	javacomplete.vim	/^let s:RE_TYPE            = s:RE_REFERENCE_TYPE$/;"	v
+s:RE_TYPE_ARGUMENT	javacomplete.vim	/^let s:RE_TYPE_ARGUMENT   = '\\%(?\\s\\+\\%(extends\\|super\\)\\s\\+\\)\\=' . s:RE_TYPE$/;"	v
+s:RE_TYPE_ARGUMENTS	javacomplete.vim	/^let s:RE_TYPE_ARGUMENTS  = '<' . s:RE_TYPE_ARGUMENT . '\\%(\\s*,\\s*' . s:RE_TYPE_ARGUMENT . '\\)*>'$/;"	v
+s:RE_TYPE_DECL	javacomplete.vim	/^let s:RE_TYPE_DECL  = '\\<\\C\\(\\%(' .s:RE_TYPE_MODS. '\\s\\+\\)*\\)' .s:RE_TYPE_DECL_HEAD. '\\(' .s:RE_IDENTIFIER. '\\)[< \\t\\n\\r]'$/;"	v
+s:RE_TYPE_DECL_HEAD	javacomplete.vim	/^let s:RE_TYPE_DECL_HEAD  = '\\(class\\|interface\\|enum\\)[ \\t\\n\\r]\\+'$/;"	v
+s:RE_TYPE_MODS	javacomplete.vim	/^let s:RE_TYPE_MODS  = '\\%(public\\|protected\\|private\\|abstract\\|static\\|final\\|strictfp\\)'$/;"	v
+s:RE_TYPE_NAME	java_parser.vim	/^let s:RE_TYPE_NAME		= s:RE_QUALID$/;"	v
+s:RE_TYPE_PARAMS	java_parser.vim	/^let s:RE_TYPE_PARAMS		= ''$/;"	v
+s:RE_TYPE_VARIABLE	java_parser.vim	/^let s:RE_TYPE_VARIABLE		= s:RE_IDENTIFIER$/;"	v
+s:RE_TYPE_WITH_ARGUMENTS	javacomplete.vim	/^let s:RE_TYPE_WITH_ARGUMENTS    = s:RE_TYPE_WITH_ARGUMENTS_I . '\\%(\\s*' . s:RE_TYPE_WITH_ARGUMENTS_I . '\\)*'$/;"	v
+s:RE_TYPE_WITH_ARGUMENTS_I	javacomplete.vim	/^let s:RE_TYPE_WITH_ARGUMENTS_I  = s:RE_IDENTIFIER . '\\s*' . s:RE_TYPE_ARGUMENTS$/;"	v
+s:RE_VAR_DECL_ID	java_parser.vim	/^let s:RE_VAR_DECL_ID		= s:RE_IDENTIFIER . s:RE_BRACKETS . '*'$/;"	v
+s:TTree	java_parser.vim	/^let s:TTree = {'tag': '', 'pos': 0}	" Root class for AST nodes.$/;"	v
+s:TV_CMP_POS	javacomplete.vim	/^let s:TV_CMP_POS = 'a:tree.pos <= a:param.pos && a:param.pos <= get(a:tree, "endpos", -1)'$/;"	v
+s:TV_CMP_POS_BODY	javacomplete.vim	/^let s:TV_CMP_POS_BODY = 'has_key(a:tree, "body") && a:tree.body.pos <= a:param.pos && a:param.pos <= get(a:tree.body, "endpos", -1)'$/;"	v
+s:TYPE	java_parser.vim	/^let s:TYPE = 2$/;"	v
+s:TYPEARG	java_parser.vim	/^let s:TYPEARG = 8$/;"	v
+s:TYPEARG_OR_NOPARAMS	java_parser.vim	/^let s:TYPEARG_OR_NOPARAMS = 12$/;"	v
+s:TreeVisitor	javacomplete.vim	/^let s:TreeVisitor = {'visit': function('s:visitTree'),$/;"	v
+s:cache	javacomplete.vim	/^let s:cache   = {}$/;"	v
+s:files	javacomplete.vim	/^let s:files   = {}$/;"	v
+s:history	javacomplete.vim	/^let s:history = {}$/;"	v
+s:keywords	java_parser.vim	/^let s:keywords = {'+': 'PLUS', '-': 'SUB', '!': 'BANG', '%': 'PERCENT', '^': 'CARET', '&': 'AMP', '*': 'STAR', '|': 'BAR', '~': 'TILDE', '\/': 'SLASH', '>': 'GT', '<': 'LT', '?': 'QUES', ':': 'COLON', '=': 'EQ', '++': 'PLUSPLUS', '--': 'SUBSUB', '==': 'EQEQ', '<=': 'LTEQ', '>=': 'GTEQ', '!=': 'BANGEQ', '<<': 'LTLT', '>>': 'GTGT', '>>>': 'GTGTGT', '+=': 'PLUSEQ', '-=': 'SUBEQ', '*=': 'STAREQ', '\/=': 'SLASHEQ', '&=': 'AMPEQ', '|=': 'BAREQ', '^=': 'CARETEQ', '%=': 'PERCENTEQ', '<<=': 'LTLTEQ', '>>=': 'GTGTEQ', '>>>=': 'GTGTGTEQ', '||': 'BARBAR', '&&': 'AMPAMP', 'abstract': 'ABSTRACT', 'assert': 'ASSERT', 'boolean': 'BOOLEAN', 'break': 'BREAK', 'byte': 'BYTE', 'case': 'CASE', 'catch': 'CATCH', 'char': 'CHAR', 'class': 'CLASS', 'const': 'CONST', 'continue': 'CONTINUE', 'default': 'DEFAULT', 'do': 'DO', 'double': 'DOUBLE', 'else': 'ELSE', 'extends': 'EXTENDS', 'final': 'FINAL', 'finally': 'FINALLY', 'float': 'FLOAT', 'for': 'FOR', 'goto': 'GOTO', 'if': 'IF', 'implements': 'IMPLEMENTS', 'import': 'IMPORT', 'instanceof': 'INSTANCEOF', 'int': 'INT', 'interface': 'INTERFACE', 'long': 'LONG', 'native': 'NATIVE', 'new': 'NEW', 'package': 'PACKAGE', 'private': 'PRIVATE', 'protected': 'PROTECTED', 'public': 'PUBLIC', 'return': 'RETURN', 'short': 'SHORT', 'static': 'STATIC', 'strictfp': 'STRICTFP', 'super': 'SUPER', 'switch': 'SWITCH', 'synchronized': 'SYNCHRONIZED', 'this': 'THIS', 'throw': 'THROW', 'throws': 'THROWS', 'transient': 'TRANSIENT', 'try': 'TRY', 'void': 'VOID', 'volatile': 'VOLATILE', 'while': 'WHILE', 'true': 'TRUE', 'false': 'FALSE', 'null': 'NULL', '(': 'LPAREN', ')': 'RPAREN', '{': 'LBRACE', '}': 'RBRACE', '[': 'LBRACKET', ']': 'RBRACKET', ';': 'SEMI', ',': 'COMMA', '.': 'DOT', 'enum': 'ENUM', '...': 'ELLIPSIS', '@': 'MONKEYS_AT'}$/;"	v
+s:log	javacomplete.vim	/^let s:log     = []$/;"	v
+s:modifier_keywords	java_parser.vim	/^let s:modifier_keywords = ['strictfp', 'abstract', 'interface', 'native', 'transient', 'volatile', 'synchronized', 'final', 'static', 'protected', 'private', 'public']$/;"	v
+s:opprecedences	java_parser.vim	/^let s:opprecedences = {'notExpression': -1, 'noPrec': 0,       'assignPrec': 1, 'assignopPrec': 2, 'condPrec': 3, 'orPrec': 4, 'andPrec': 5, 'bitorPrec': 6, 'bitxorPrec': 7, 'bitandPrec': 8, 'eqPrec': 9, 'ordPrec': 10, 'shiftPrec': 11, 'addPrec': 12, 'mulPrec': 13, 'prefixPrec': 14, 'postfixPrec': 15, 'precCount': 16}$/;"	v
+scanChar	java_parser.vim	/^fu! s:scanChar()$/;"	f
+scanComment	java_parser.vim	/^fu! s:scanComment()$/;"	f
+scanDocComment	java_parser.vim	/^fu! s:scanDocComment()$/;"	f
+scanDoubleQuote	java_parser.vim	/^fu! s:scanDoubleQuote()$/;"	f
+scanFraction	java_parser.vim	/^fu! s:scanFraction()$/;"	f
+scanFractionAndSuffix	java_parser.vim	/^fu! s:scanFractionAndSuffix()$/;"	f
+scanHexExponentAndSuffix	java_parser.vim	/^fu! s:scanHexExponentAndSuffix()$/;"	f
+scanHexFractionAndSuffix	java_parser.vim	/^fu! s:scanHexFractionAndSuffix(seendigit)$/;"	f
+scanIdent	java_parser.vim	/^fu! s:scanIdent()$/;"	f
+scanIdent_old	java_parser.vim	/^fu! s:scanIdent_old()$/;"	f
+scanLitChar	java_parser.vim	/^fu! s:scanLitChar()$/;"	f
+scanNumber	java_parser.vim	/^fu! s:scanNumber(radix)$/;"	f
+scanOperator	java_parser.vim	/^fu! s:scanOperator()$/;"	f
+scanSingleQuote	java_parser.vim	/^fu! s:scanSingleQuote()$/;"	f
+search_for_name	javacomplete.vim	/^fu! s:search_for_name(name, first, fullmatch)$/;"	f
+search_type_at	javacomplete.vim	/^fu! s:search_type_at(tree, targetPos, ...)$/;"	f
+setErrorEndPos	java_parser.vim	/^fu! s:setErrorEndPos(errPos)$/;"	f
+skip	java_parser.vim	/^fu! s:skip(stopAtImport, stopAtMemberDecl, stopAtIdentifier, stopAtStatement)$/;"	f
+skipComment	java_parser.vim	/^fu! s:skipComment()$/;"	f
+sort	javacomplete.vim	/^fu! s:sort(ci)$/;"	f
+statement	java_parser.vim	/^fu! s:statement()$/;"	f
+superSuffix	java_parser.vim	/^fu! s:superSuffix(typeArgs, t)$/;"	f
+switchBlockStatementGroups	java_parser.vim	/^fu! s:switchBlockStatementGroups()$/;"	f
+tail_of_fqn	javacomplete.vim	/^fu! s:tail_of_fqn(qn)$/;"	f
+term	java_parser.vim	/^fu! s:term(...)$/;"	f
+term1	java_parser.vim	/^fu! s:term1()$/;"	f
+term1Rest	java_parser.vim	/^fu! s:term1Rest(t)$/;"	f
+term2	java_parser.vim	/^fu! s:term2()$/;"	f
+term2Rest	java_parser.vim	/^fu! s:term2Rest(t, minprec)$/;"	f
+term3	java_parser.vim	/^fu! s:term3()$/;"	f
+termRest	java_parser.vim	/^fu! s:termRest(t)$/;"	f
+token2string	java_parser.vim	/^fu! s:token2string(token)$/;"	f
+trace	javacomplete.vim	/^fu! s:trace(msg)$/;"	f
+type	java_parser.vim	/^fu! s:type()$/;"	f
+typeArgument	java_parser.vim	/^fu! s:typeArgument()$/;"	f
+typeArguments	java_parser.vim	/^fu! s:typeArguments(...)$/;"	f
+typeArgumentsOpt	java_parser.vim	/^fu! s:typeArgumentsOpt(...)$/;"	f
+typeArgumentsOpt2	java_parser.vim	/^fu! s:typeArgumentsOpt2(t)$/;"	f
+typeDeclaration	java_parser.vim	/^fu! s:typeDeclaration(mods)$/;"	f
+typeList	java_parser.vim	/^fu! s:typeList()$/;"	f
+typeParameter	java_parser.vim	/^fu! s:typeParameter()$/;"	f
+typeParametersOpt	java_parser.vim	/^fu! s:typeParametersOpt()$/;"	f
+typetag	java_parser.vim	/^fu! s:typetag(token)$/;"	f
+unoptag	java_parser.vim	/^fu! s:unoptag(token)$/;"	f
+usage	Reflection.java	/^    private static void usage() {$/;"	m	class:Reflection	file:
+vardef2Str	java_parser.vim	/^fu! s:vardef2Str(vardef)$/;"	f
+variableDeclarator	java_parser.vim	/^fu! s:variableDeclarator(mods, type, reqInit, dc)$/;"	f
+variableDeclaratorId	java_parser.vim	/^fu! s:variableDeclaratorId(mods, type)$/;"	f
+variableDeclaratorRest	java_parser.vim	/^fu! s:variableDeclaratorRest(pos, mods, type, name, reqInit, dc)$/;"	f
+variableDeclarators	java_parser.vim	/^fu! s:variableDeclarators(mods, type, vdefs)$/;"	f
+variableDeclaratorsRest	java_parser.vim	/^fu! s:variableDeclaratorsRest(pos, mods, type, name, reqInit, dc, vdefs)$/;"	f
+variableInitializer	java_parser.vim	/^fu! s:variableInitializer()$/;"	f
+visitTree	javacomplete.vim	/^fu! s:visitTree(tree, param) dict$/;"	f
+watch	javacomplete.vim	/^fu! s:watch(variant)$/;"	f

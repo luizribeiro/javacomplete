@@ -123,39 +123,35 @@ function! javacomplete#Complete(findstart, base)
   call s:trace('***************************************')
   call s:trace('*     javacomplete#Complete start     *')
   call s:trace('***************************************')
-  call s:trace('findstart : ' . a:findstart)
-  call s:trace('base      : ' . a:base)
+  call s:trace('findstart    : ' . a:findstart)
+  call s:trace('base         : ' . a:base)
+  call s:trace('context_type : ' . b:context_type)
+  call s:trace('incomplete   : ' . b:incomplete)
+  call s:trace('dotexpr      : ' . b:dotexpr)
 
-  if a:findstart
-    return s:findstart()
-  end
-
+  " prepare for completion , and return
+  if a:findstart | return s:findstart() | end
   " Return list of matches.
-  call s:watch('b:context_type: "' . b:context_type . 
-               \ '"  b:incomplete: "' . b:incomplete . 
-               \ '"  b:dotexpr: "' . b:dotexpr . '"')
-  if b:dotexpr =~ '^\s*$' && b:incomplete =~ '^\s*$'
-    return []
-  endif
+  if b:dotexpr =~ '^\s*$' && b:incomplete =~ '^\s*$' | return [] | endif
 
-  let result = []
+  let candidates = []
   if b:dotexpr !~ '^\s*$'
-    let result = s:complete_with_dot()
-    " only incomplete word
+    let candidates = s:complete_with_dot()
   elseif b:incomplete !~ '^\s*$'
-    let result = s:complete_incomplete_words()
-    " then no filter needed
+    let candidates = s:complete_incomplete_words()
     let b:incomplete = ''
   endif
 
-  if len(result) > 0
+  if len(candidates) > 0
     " filter according to b:incomplete
     if len(b:incomplete) > 0 && b:incomplete != '+'
-      let result = filter(result, "type(v:val) == type('') ? v:val =~ '^" . b:incomplete . "' : v:val['word'] =~ '^" . b:incomplete . "'")
+      let candidates = filter(candidates, 
+                              \ "type(v:val) == type('') ? v:val =~ '^" . b:incomplete . 
+                              \ "' : v:val['word'] =~ '^" . b:incomplete . "'")
     endif
 
     if exists('s:padding') && !empty(s:padding)
-      for item in result
+      for item in candidates
         if type(item) == type("")
           let item .= s:padding
         else
@@ -166,7 +162,7 @@ function! javacomplete#Complete(findstart, base)
     endif
 
     call s:debug('finish completion' . reltimestr(reltime(s:et_whole)) . 's')
-    return result
+    return candidates
   endif
 
   if strlen(b:errormsg) > 0
@@ -254,7 +250,7 @@ function! s:findstart()
     let str = matchstr(statement, '\<new\s\+' . s:RE_QUALID . '$')
     if str != ''
       let str = substitute(str, '^new\s\+', '', '')
-      if !s:IsKeyword(str)
+      if !s:is_keyword(str)
         let b:incomplete = '+'
         let b:dotexpr = str
         return start - len(b:dotexpr)
@@ -272,13 +268,13 @@ function! s:findstart()
             let b:incomplete = '+'
             return start - len(b:dotexpr)
 
-          elseif !s:IsKeyword(statement)
+          elseif !s:is_keyword(statement)
             let b:incomplete = statement
             return start - strlen(b:incomplete)
           endif
 
           " case: "expr.method(|)"
-        elseif statement[pos-1] == '.' && !s:IsKeyword(strpart(statement, pos))
+        elseif statement[pos-1] == '.' && !s:is_keyword(strpart(statement, pos))
           let b:dotexpr = s:ExtractCleanExpr(strpart(statement, 0, pos))
           let b:incomplete = strpart(statement, pos)
           return start - strlen(b:incomplete)
@@ -332,7 +328,7 @@ endfunction
 fu! s:complete_after_word(incomplete)
   " packages in jar files
   if !exists('s:all_packages_in_jars_loaded')
-    call s:DoGetInfoByReflection('-', '-P')
+    call s:do_get_info_by_reflection('-', '-P')
     let s:all_packages_in_jars_loaded = 1
   endif
 
@@ -383,7 +379,7 @@ fu! s:complete_after_word(incomplete)
 
     " other files
     let filepatterns = ''
-    for dirpath in s:GetSourceDirs(expand('%:p'))
+    for dirpath in s:get_source_dirs(expand('%:p'))
       let filepatterns .= escape(dirpath, ' \') . '/*.java '
     endfor
     exe 'vimgrep /\s*' . s:RE_TYPE_DECL . '/jg ' . filepatterns
@@ -414,27 +410,27 @@ fu! s:complete_after_word(incomplete)
 
   return result
 endfu
-
+"
 " Precondition:  expr must end with '.'
 " return members of the value of expression
 function! s:complete_after_dot(expr)
-  let items = s:ParseExpr(a:expr)    " TODO: return a dict containing more than items
-  if empty(items)
-    return []
-  endif
-
-
+  " TODO: return a dict containing more than items
+  let items = s:parse_expr(a:expr)    
+  for v in items
+    call s:trace('items before : ' . v)
+  endfor
+  " return if empty
+  if empty(items) | return [] | endif
   " 0. String literal
   call s:info('P0. "str".|')
+  " string literal
   if items[-1] =~  '"$'
-    return s:GetMemberList("java.lang.String")
+    return s:get_member_list("java.lang.String")
   endif
-
 
   let ti = {}
   let ii = 1    " item index
   let itemkind = 0
-
   "
   " optimized process
   "
@@ -446,18 +442,21 @@ function! s:complete_after_dot(expr)
     if ident == 'class' || ident == 'this' || ident == 'super'
       let k = i
       " return when found other keywords
-    elseif s:IsKeyword(ident)
+    elseif s:is_keyword(ident)
       return []
     endif
     let items[i] = substitute(items[i], '\s', '', 'g')
     let i += 1
   endwhile
 
+  for v in items
+    call s:trace('items after  : ' . v)
+  endfor
   if i > 1
     " cases: "this.|", "super.|", "ClassName.this.|", "ClassName.super.|", "TypeName.class.|"
     if items[k] ==# 'class' || items[k] ==# 'this' || items[k] ==# 'super'
       call s:info('O1. ' . items[k] . ' ' . join(items[:k-1], '.'))
-      let ti = s:DoGetClassInfo(items[k] == 'class' ? 'java.lang.Class' : join(items[:k-1], '.'))
+      let ti = s:do_get_class_info(items[k] == 'class' ? 'java.lang.Class' : join(items[:k-1], '.'))
       if !empty(ti)
         let itemkind = items[k] ==# 'this' ? 1 : items[k] ==# 'super' ? 2 : 0
         let ii = k+1
@@ -465,12 +464,12 @@ function! s:complete_after_dot(expr)
         return []
       endif
 
-      " case: "java.io.File.|"
+    " case: "java.io.File.|"
     else
       let fqn = join(items[:i-1], '.')
-      let srcpath = join(s:GetSourceDirs(expand('%:p'), s:GetPackageName()), ',')
+      let srcpath = join(s:get_source_dirs(expand('%:p'), s:get_package_name()), ',')
       call s:info('O2. ' . fqn)
-      call s:DoGetTypeInfoForFQN([fqn], srcpath)
+      call s:get_fqn([fqn], srcpath)
       if get(get(s:cache, fqn, {}), 'tag', '') == 'CLASSDEF'
         let ti = s:cache[fqn]
         let itemkind = 11
@@ -478,8 +477,6 @@ function! s:complete_after_dot(expr)
       endif
     endif
   endif
-
-
   "
   " first item
   "
@@ -493,10 +490,10 @@ function! s:complete_after_dot(expr)
     if items[0] =~ '^\s*' . s:RE_IDENTIFIER . '\s*$'
       let ident = substitute(items[0], '\s', '', 'g')
 
-      if s:IsKeyword(ident)
+      if s:is_keyword(ident)
         " 1)
         call s:info('F1. "' . ident . '.|"')
-        if ident ==# 'void' || s:IsBuiltinType(ident)
+        if ident ==# 'void' || s:is_builtin_type(ident)
           let ti = s:PRIMITIVE_TYPE_INFO
           let itemkind = 11
 
@@ -504,7 +501,7 @@ function! s:complete_after_dot(expr)
           call s:info('F2. "' . ident . '.|"')
         elseif ident ==# 'this' || ident ==# 'super'
           let itemkind = ident ==# 'this' ? 1 : ident ==# 'super' ? 2 : 0
-          let ti = s:DoGetClassInfo(ident)
+          let ti = s:do_get_class_info(ident)
         endif
 
       else
@@ -514,14 +511,14 @@ function! s:complete_after_dot(expr)
         if (typename != '')
           if typename[0] == '[' || typename[-1:] == ']'
             let ti = s:ARRAY_TYPE_INFO
-          elseif typename != 'void' && !s:IsBuiltinType(typename)
-            let ti = s:DoGetClassInfo(typename)
+          elseif typename != 'void' && !s:is_builtin_type(typename)
+            let ti = s:do_get_class_info(typename)
           endif
 
         else
           " 4)
           call s:info('F4. "TypeName.|"')
-          let ti = s:DoGetClassInfo(ident)
+          let ti = s:do_get_class_info(ident)
           let itemkind = 11
 
           if get(ti, 'tag', '') != 'CLASSDEF'
@@ -546,7 +543,7 @@ function! s:complete_after_dot(expr)
     elseif items[0] =~# s:RE_ARRAY_TYPE
       call s:info('array type. "' . items[0] . '"')
       let qid = substitute(items[0], s:RE_ARRAY_TYPE, '\1', '')
-      if s:IsBuiltinType(qid) || (!s:HasKeyword(qid) && !empty(s:DoGetClassInfo(qid)))
+      if s:is_builtin_type(qid) || (!s:has_keyword(qid) && !empty(s:do_get_class_info(qid)))
         let ti = s:PRIMITIVE_TYPE_INFO
         let itemkind = 11
       endif
@@ -559,7 +556,7 @@ function! s:complete_after_dot(expr)
       if subs[1][0] == '['
         let ti = s:ARRAY_TYPE_INFO
       elseif subs[1][0] == '('
-        let ti = s:DoGetClassInfo(subs[0])
+        let ti = s:do_get_class_info(subs[0])
         " exclude interfaces and abstract class.  TODO: exclude the inaccessible
         if get(ti, 'flags', '')[-10:-10] || get(ti, 'flags', '')[-11:-11]
           echo 'cannot instantiate the type ' . subs[0]
@@ -572,7 +569,7 @@ function! s:complete_after_dot(expr)
     elseif items[0] =~ s:RE_CASTING
       call s:info('Casting conversion. "' . items[0] . '"')
       let subs = split(substitute(items[0], s:RE_CASTING, '\1;\2', ''), ';')
-      let ti = s:DoGetClassInfo(subs[0])
+      let ti = s:do_get_class_info(subs[0])
 
       " array access:  "var[i][j].|"    Note: "var[i][]" is incorrect
     elseif items[0] =~# s:RE_ARRAY_ACCESS
@@ -607,7 +604,7 @@ function! s:complete_after_dot(expr)
       let brackets = get(subs, 1, '')
 
       " package members
-      if itemkind/10 == 2 && empty(brackets) && !s:IsKeyword(ident)
+      if itemkind/10 == 2 && empty(brackets) && !s:is_keyword(ident)
         let qn = join(items[:ii], '.')
         if type(ti) == type([])
           let idx = s:Index(ti, ident, 'word')
@@ -619,7 +616,7 @@ function! s:complete_after_dot(expr)
               continue
             elseif ti[idx].kind == 'C'
               unlet ti
-              let ti = s:DoGetClassInfo(qn)
+              let ti = s:do_get_class_info(qn)
               let itemkind = 11
               let ii += 1
               continue
@@ -631,12 +628,12 @@ function! s:complete_after_dot(expr)
         " type members
       elseif itemkind/10 == 1 && empty(brackets)
         if ident ==# 'class' || ident ==# 'this' || ident ==# 'super'
-          let ti = s:DoGetClassInfo(ident == 'class' ? 'java.lang.Class' : join(items[:ii-1], '.'))
+          let ti = s:do_get_class_info(ident == 'class' ? 'java.lang.Class' : join(items[:ii-1], '.'))
           let itemkind = ident ==# 'this' ? 1 : ident ==# 'super' ? 2 : 0
           let ii += 1
           continue
 
-        elseif !s:IsKeyword(ident) && type(ti) == type({}) && get(ti, 'tag', '') == 'CLASSDEF'
+        elseif !s:is_keyword(ident) && type(ti) == type({}) && get(ti, 'tag', '') == 'CLASSDEF'
           " accessible static field
           "let idx = s:Index(get(ti, 'fields', []), ident, 'n')
           "if idx >= 0 && s:IsStatic(ti.fields[idx].m)
@@ -652,7 +649,7 @@ function! s:complete_after_dot(expr)
           " accessible nested type
           "if !empty(filter(copy(get(ti, 'classes', [])), 'strpart(v:val, strridx(v:val, ".")) ==# "' . ident . '"'))
           if !empty(members[0])
-            let ti = s:DoGetClassInfo(join(items[:ii], '.'))
+            let ti = s:do_get_class_info(join(items[:ii], '.'))
             let ii += 1
             continue
           endif
@@ -660,7 +657,7 @@ function! s:complete_after_dot(expr)
 
 
         " instance members
-      elseif itemkind/10 == 0 && !s:IsKeyword(ident)
+      elseif itemkind/10 == 0 && !s:is_keyword(ident)
         if type(ti) == type({}) && get(ti, 'tag', '') == 'CLASSDEF'
           "let idx = s:Index(get(ti, 'fields', []), ident, 'n')
           "if idx >= 0
@@ -689,7 +686,7 @@ function! s:complete_after_dot(expr)
         elseif get(ti, 'name', '') == '['
           return s:ARRAY_TYPE_MEMBERS
         elseif itemkind < 20
-          return s:DoGetMemberList(ti, itemkind)
+          return s:do_get_member_list(ti, itemkind)
         endif
       elseif get(ti, 'tag', '') == 'PACKAGE'
         " TODO: ti -> members, in addition to packages in dirs
@@ -743,8 +740,8 @@ fu! s:ArrayAccess(arraytype, expr)
     endif
   endif
   if dims == 0
-    if typename != 'void' && !s:IsBuiltinType(typename)
-      return s:DoGetClassInfo(typename)
+    if typename != 'void' && !s:is_builtin_type(typename)
+      return s:do_get_class_info(typename)
     endif
   endif
   return {}
@@ -878,7 +875,7 @@ fu! s:ExtractCleanExpr(expr)
   return strpart(cmd, idx != -1 ? idx : pos+1)
 endfu
 
-fu! s:ParseExpr(expr)
+fu! s:parse_expr(expr)
   let items = []
   let s = 0
   " recognize ClassInstanceCreationExpr as a whole
@@ -890,11 +887,11 @@ fu! s:ParseExpr(expr)
   while e >= 0
     if a:expr[e] == '.'
       let subexpr = strpart(a:expr, s, e-s)
-      call extend(items, isparen ? s:ProcessParentheses(subexpr) : [subexpr])
+      call extend(items, isparen ? s:process_parentheses(subexpr) : [subexpr])
       let isparen = 0
       let s = e + 1
     elseif a:expr[e] == '('
-      let e = s:GetMatchedIndexEx(a:expr, e, '(', ')')
+      let e = s:get_matched_index_ex(a:expr, e, '(', ')')
       let isparen = 1
       if e < 0
         break
@@ -903,7 +900,7 @@ fu! s:ParseExpr(expr)
         continue
       endif
     elseif a:expr[e] == '['
-      let e = s:GetMatchedIndexEx(a:expr, e, '[', ']')
+      let e = s:get_matched_index_ex(a:expr, e, '[', ']')
       if e < 0
         break
       else
@@ -915,21 +912,21 @@ fu! s:ParseExpr(expr)
   endwhile
   let tail = strpart(a:expr, s)
   if tail !~ '^\s*$'
-    call extend(items, isparen ? s:ProcessParentheses(tail) : [tail])
+    call extend(items, isparen ? s:process_parentheses(tail) : [tail])
   endif
 
   return items
 endfu
 
-" Given optional argument, call s:ParseExpr() to parser the nonparentheses expr
-fu! s:ProcessParentheses(expr, ...)
+" Given optional argument, call s:parse_expr() to parser the nonparentheses expr
+fu! s:process_parentheses(expr, ...)
   let s = matchend(a:expr, '^\s*(')
   if s != -1
-    let e = s:GetMatchedIndexEx(a:expr, s-1, '(', ')')
+    let e = s:get_matched_index_ex(a:expr, s-1, '(', ')')
     if e >= 0
       let tail = strpart(a:expr, e+1)
       if tail =~ '^\s*[\=$'
-        return s:ProcessParentheses(strpart(a:expr, s, e-s), 1)
+        return s:process_parentheses(strpart(a:expr, s, e-s), 1)
       elseif tail =~ '^\s*\w'
         return [strpart(a:expr, 0, e+1) . 'obj.']
       endif
@@ -937,7 +934,7 @@ fu! s:ProcessParentheses(expr, ...)
 
     " multi-dot-expr except for new expr
   elseif a:0 > 0 && stridx(a:expr, '.') != match(a:expr, '\.\s*$') && a:expr !~ '^\s*new\s\+'
-    return s:ParseExpr(a:expr)
+    return s:parse_expr(a:expr)
   endif
   return [a:expr]
 endfu
@@ -1016,10 +1013,10 @@ function! s:GenerateImports()
 endfunction
 
 fu! s:get_imports(kind, ...)
-  let filekey = a:0 > 0 && !empty(a:1) ? a:1 : s:GetCurrentFileKey()
+  let filekey = a:0 > 0 && !empty(a:1) ? a:1 : s:get_current_file_key()
   let props = get(s:files, filekey, {})
   if !has_key(props, a:kind)
-    let props['imports']  = filekey == s:GetCurrentFileKey() ? s:GenerateImports() : props.unit.imports
+    let props['imports']  = filekey == s:get_current_file_key() ? s:GenerateImports() : props.unit.imports
     let props['imports_static']  = []
     let props['imports_fqn']  = []
     let props['imports_star']  = ['java.lang.']
@@ -1082,11 +1079,11 @@ fu! s:SearchStaticImports(name, fullmatch)
     endif
   endfor
   if commalist != ''
-    let res = s:RunReflection('-E', commalist, 's:SearchStaticImports in Batch')
+    let res = s:run_reflection('-E', commalist, 's:SearchStaticImports in Batch')
     if res =~ "^{'"
       let dict = eval(res)
       for key in keys(dict)
-        let s:cache[key] = s:Sort(dict[key])
+        let s:cache[key] = s:sort(dict[key])
       endfor
     endif
   endif
@@ -1139,7 +1136,7 @@ function! s:GetVariableDeclaration()
   return s:MergeLines(lnum, col, lnum_old, col_old)
 endfunction
 
-function! s:FoundClassDeclaration(type)
+function! s:found_class_declaration(type)
   let lnum_old = line('.')
   let col_old = col('.')
   call cursor(1, 1)
@@ -1305,7 +1302,7 @@ endfunction
 " return [types, methods, fields, vars]
 fu! s:search_for_name(name, first, fullmatch)
   let result = [[], [], [], []]
-  if s:IsKeyword(a:name)
+  if s:is_keyword(a:name)
     return result
   endif
 
@@ -1328,7 +1325,7 @@ fu! s:search_for_name(name, first, fullmatch)
     if a:first && result != [[], [], [], []]  | return result | endif
 
     " Accessible inherited members
-    let type = get(s:SearchTypeAt(unit, targetPos), -1, {})
+    let type = get(s:search_type_at(unit, targetPos), -1, {})
     if !empty(type)
       let members = s:SearchMember(type, a:name, a:fullmatch, 2, 1, 0, 1)
       let result[0] += members[0]
@@ -1419,7 +1416,7 @@ fu! javacomplete#parse(...)
 
   let changed = 0
   if filename == '%'
-    let filename = s:GetCurrentFileKey()
+    let filename = s:get_current_file_key()
     let props = get(s:files, filename, {})
     if get(props, 'changedtick', -1) != b:changedtick
       let changed = 1
@@ -1500,10 +1497,10 @@ let s:TV_CMP_POS_BODY = 'has_key(a:tree, "body") && a:tree.body.pos <= a:param.p
 
 " Return a stack of enclosing types (including local or anonymous classes).
 " Given the optional argument, return all (toplevel or static member) types besides enclosing types.
-fu! s:SearchTypeAt(tree, targetPos, ...)
-  let s:TreeVisitor.CLASSDEF  = 'if a:param.allNonLocal || ' . s:TV_CMP_POS . ' | call add(a:param.result, a:tree) | call self.visit(a:tree.defs, a:param) | endif'
+fu! s:search_type_at(tree, targetPos, ...)
+  let s:TreeVisitor.CLASSDEF   = 'if a:param.allNonLocal || ' . s:TV_CMP_POS . ' | call add(a:param.result, a:tree) | call self.visit(a:tree.defs, a:param) | endif'
   let s:TreeVisitor.METHODDEF  = 'if ' . s:TV_CMP_POS_BODY . ' | call self.visit(a:tree.body, a:param) | endif'
-  let s:TreeVisitor.VARDEF  = 'if has_key(a:tree, "init") && !a:param.allNonLocal && ' . s:TV_CMP_POS . ' | call self.visit(a:tree.init, a:param) | endif'
+  let s:TreeVisitor.VARDEF     = 'if has_key(a:tree, "init") && !a:param.allNonLocal && ' . s:TV_CMP_POS . ' | call self.visit(a:tree.init, a:param) | endif'
 
   let result = []
   call s:TreeVisitor.visit(a:tree, {'result': result, 'pos': a:targetPos, 'allNonLocal': a:0 == 0 ? 0 : 1})
@@ -1540,7 +1537,7 @@ fu! javacomplete#Searchdecl()
       return ''
     endif
 
-    let matchs = s:SearchTypeAt(javacomplete#parse(), java_parser#MakePos(line, col))
+    let matchs = s:search_type_at(javacomplete#parse(), java_parser#MakePos(line, col))
 
     let stat = s:GetStatement()
     for t in matchs
@@ -1588,7 +1585,7 @@ fu! javacomplete#Searchdecl()
     let hint .= getline(coor.line+1)    "string(tree)
   else
     for fqn in imports
-      let ci = s:DoGetClassInfo(fqn)
+      let ci = s:do_get_class_info(fqn)
       if !empty(ci)
         let hint .= ' ' . fqn
       endif
@@ -1602,19 +1599,19 @@ endfu
 
 " java              {{{1
 
-fu! s:IsBuiltinType(name)
+fu! s:is_builtin_type(name)
   return index(s:PRIMITIVE_TYPES, a:name) >= 0
 endfu
 
-fu! s:IsKeyword(name)
+fu! s:is_keyword(name)
   return index(s:KEYWORDS, a:name) >= 0
 endfu
 
-fu! s:HasKeyword(name)
+fu! s:has_keyword(name)
   return a:name =~# s:RE_KEYWORDS
 endfu
 
-fu! s:TailOfQN(qn)
+fu! s:tail_of_fqn(qn)
   return a:qn[strridx(a:qn, '.')+1:]
 endfu
 
@@ -1695,17 +1692,17 @@ endfu
 " return the sourcepath. Given argument, add current path or default package root path
 " NOTE: Avoid path duplicate, otherwise globpath() will return duplicate result.
 fu! javacomplete#GetSourcePath(...)
-  return join(s:GetSourceDirs(a:0 > 0 && a:1 ? expand('%:p') : ''), s:PATH_SEP)
+  return join(s:get_source_dirs(a:0 > 0 && a:1 ? expand('%:p') : ''), s:PATH_SEP)
 endfu
 
-fu! s:GetSourceDirs(filepath, ...)
+fu! s:get_source_dirs(filepath, ...)
   let dirs = exists('s:sourcepath') ? s:sourcepath : []
 
   if !empty(a:filepath)
     let filepath = fnamemodify(a:filepath, ':p:h')
 
     " get source path according to file path and package name
-    let packageName = a:0 > 0 ? a:1 : s:GetPackageName()
+    let packageName = a:0 > 0 ? a:1 : s:get_package_name()
     if packageName != ''
       let path = fnamemodify(substitute(filepath, packageName, '', 'g'), ':p:h')
       if index(dirs, path) < 0
@@ -1761,8 +1758,8 @@ fu! javacomplete#GetClassPath()
   return exists('s:classpath') ? join(s:classpath, javacomplete#GetClassPathSep()) : ''
 endfu
 
-" s:GetClassPath()              {{{2
-fu! s:GetClassPath()
+" s:get_class_path()              {{{2
+fu! s:get_class_path()
   let path = s:GetJavaCompleteClassPath() . javacomplete#GetClassPathSep()
 
   if &ft == 'jsp'
@@ -1852,7 +1849,7 @@ endfu
 " return only classpath which are directories
 fu! s:GetClassDirs()
   let dirs = []
-  for path in split(s:GetClassPath(), s:PATH_SEP)
+  for path in split(s:get_class_path(), s:PATH_SEP)
     if isdirectory(path)
       call add(dirs, fnamemodify(path, ':p:h'))
     endif
@@ -1860,8 +1857,8 @@ fu! s:GetClassDirs()
   return dirs
 endfu
 
-" s:GetPackageName()              {{{2
-fu! s:GetPackageName()
+" s:get_package_name()              {{{2
+fu! s:get_package_name()
   let lnum_old = line('.')
   let col_old = col('.')
 
@@ -1990,13 +1987,13 @@ endfu
 
 " TODO: search pair used in string, like 
 "   'create(ao.fox("("), new String).foo().'
-function! s:GetMatchedIndexEx(str, idx, one, another)
+function! s:get_matched_index_ex(str, idx, one, another)
   let pos = a:idx
   while 0 <= pos && pos < len(a:str)
     let pos = match(a:str, '['. a:one . escape(a:another, ']') .']', pos+1)
     if pos != -1
       if a:str[pos] == a:one
-        let pos = s:GetMatchedIndexEx(a:str, pos, a:one, a:another)
+        let pos = s:get_matched_index_ex(a:str, pos, a:one, a:another)
       elseif a:str[pos] == a:another
         break
       endif
@@ -2119,7 +2116,7 @@ endfu
 " cache utilities              {{{1
 
 " key of s:files for current buffer. It may be the full path of current file or the bufnr of unnamed buffer, and is updated when BufEnter, BufLeave.
-fu! s:GetCurrentFileKey()
+fu! s:get_current_file_key()
   return has("autocmd") ? s:curfilekey : empty(expand('%')) ? bufnr('%') : expand('%:p')
 endfu
 
@@ -2181,13 +2178,13 @@ fu! s:Log(level, key, ...)
   endif
 endfu
 
-fu! s:System(cmd, caller)
+function! s:call_system(cmd, caller)
   call s:watch(a:cmd)
   let t = reltime()
   let res = system(a:cmd)
   call s:debug(reltimestr(reltime(t)) . 's to exec "' . a:cmd . '" by ' . a:caller)
   return res
-endfu
+endfunction
 
 " functions to get information            {{{1
 " utilities                {{{2
@@ -2195,7 +2192,7 @@ fu! s:MemberCompare(m1, m2)
   return a:m1['n'] == a:m2['n'] ? 0 : a:m1['n'] > a:m2['n'] ? 1 : -1
 endfu
 
-fu! s:Sort(ci)
+fu! s:sort(ci)
   let ci = a:ci
   if has_key(ci, 'fields')
     call sort(ci['fields'], 's:MemberCompare')
@@ -2207,14 +2204,15 @@ fu! s:Sort(ci)
 endfu
 
 " Function to run Reflection            {{{2
-fu! s:RunReflection(option, args, log)
+fu! s:run_reflection(option, args, log)
   let classpath = ''
   if !exists('s:isjdk11')
-    let classpath = ' -classpath "' . s:GetClassPath() . '" '
+    let classpath = ' -classpath "' . s:get_class_path() . '" '
   endif
 
-  let cmd = javacomplete#GetJVMLauncher() . classpath . ' Reflection ' . a:option . ' "' . a:args . '"'
-  return s:System(cmd, a:log)
+  let cmd = javacomplete#GetJVMLauncher() . classpath . 
+              \ ' Reflection ' . a:option . ' "' . a:args . '"'
+  return s:call_system(cmd, a:log)
 endfu
 " class information              {{{2
 
@@ -2230,7 +2228,7 @@ endfu
 " return  a dict of fqn -> type info
 " precondition: 
 " NOTE: call expand() to convert path to standard form
-fu! s:DoGetTypeInfoForFQN(fqns, srcpath, ...)
+fu! s:get_fqn(fqns, srcpath, ...)
   if empty(a:fqns) || empty(a:srcpath)
     return
   endif
@@ -2329,9 +2327,9 @@ fu! s:DoGetTypeInfoForFQN(fqns, srcpath, ...)
   call s:info('FQN1&2: ' . string(keys(files)))
   for fqn in keys(files)
     if !has_key(s:cache, fqn) || get(get(s:files, files[fqn], {}), 'modifiedtime', 0) != getftime(files[fqn])
-      let ti = s:GetClassInfoFromSource(fqn[strridx(fqn, '.')+1:], files[fqn])
+      let ti = s:get_class_info_from_source(fqn[strridx(fqn, '.')+1:], files[fqn])
       if !empty(ti)
-        let s:cache[fqn] = s:Sort(ti)
+        let s:cache[fqn] = s:sort(ti)
       endif
     endif
     if (a:0 == 0 || !a:1)
@@ -2350,13 +2348,13 @@ fu! s:DoGetTypeInfoForFQN(fqns, srcpath, ...)
     endif
   endfor
   if !empty(commalist)
-    let res = s:RunReflection('-E', commalist, 'DoGetTypeInfoForFQN in Batch')
+    let res = s:run_reflection('-E', commalist, 'get_fqn in Batch')
     if res =~ "^{'"
       let dict = eval(res)
       for key in keys(dict)
         if !has_key(s:cache, key)
           if type(dict[key]) == type({})
-            let s:cache[key] = s:Sort(dict[key])
+            let s:cache[key] = s:sort(dict[key])
           elseif type(dict[key]) == type([])
             let s:cache[key] = sort(dict[key])
           endif
@@ -2368,8 +2366,9 @@ endfu
 
 " a:1  filepath
 " a:2  package name
-fu! s:DoGetClassInfo(class, ...)
+fu! s:do_get_class_info(class, ...)
   if has_key(s:cache, a:class)
+    call s:trace(a:class . "'s cache is exist")
     return s:cache[a:class]
   endif
 
@@ -2381,7 +2380,7 @@ fu! s:DoGetClassInfo(class, ...)
   " either this or super is not qualified
   if a:class == 'this' || a:class == 'super'
     if &ft == 'jsp'
-      let ci = s:DoGetReflectionClassInfo('javax.servlet.jsp.HttpJspPage')
+      let ci = s:get_reflection_class_info('javax.servlet.jsp.HttpJspPage')
       if a:class == 'this'
         " TODO: search methods defined in <%! [declarations] %>
         "  search methods defined in other jsp files included
@@ -2392,7 +2391,10 @@ fu! s:DoGetClassInfo(class, ...)
 
     call s:info('A0. ' . a:class)
     " this can be a local class or anonymous class as well as static type
-    let t = get(s:SearchTypeAt(javacomplete#parse(), java_parser#MakePos(line('.')-1, col('.')-1)), -1, {})
+    let type = s:search_type_at(
+                  \ javacomplete#parse(), 
+                  \ java_parser#MakePos(line('.') - 1 , col('.') - 1))
+    let t = get(type , -1 , {})
     if !empty(t)
       " What will be returned for super?
       " - the protected or public inherited fields and methods. No ctors.
@@ -2400,23 +2402,23 @@ fu! s:DoGetClassInfo(class, ...)
       " - the methods of the Object class.
       " What will be returned for this?
       " - besides the above, all fields and methods of current class. No ctors.
-      return s:Sort(s:Tree2ClassInfo(t))
-      "return s:Sort(s:AddInheritedClassInfo(a:class == 'this' ? s:Tree2ClassInfo(t) : {}, t, 1))
+      return s:sort(s:Tree2ClassInfo(t))
+      "return s:sort(s:AddInheritedClassInfo(a:class == 'this' ? s:Tree2ClassInfo(t) : {}, t, 1))
     endif
 
     return {}
   endif
 
 
-  if a:class !~ '^\s*' . s:RE_QUALID . '\s*$' || s:HasKeyword(a:class)
+  if a:class !~ '^\s*' . s:RE_QUALID . '\s*$' || s:has_keyword(a:class)
     return {}
   endif
 
 
-  let typename  = substitute(a:class, '\s', '', 'g')
-  let filekey  = a:0 > 0 ? a:1 : s:GetCurrentFileKey()
-  let packagename = a:0 > 1 ? a:2 : s:GetPackageName()
-  let srcpath  = join(s:GetSourceDirs(a:0 > 0 && a:1 != bufnr('%') ? a:1 : expand('%:p'), packagename), ',')
+  let typename    = substitute(a:class, '\s', '', 'g')
+  let filekey     = a:0 > 0 ? a:1 : s:get_current_file_key()
+  let packagename = a:0 > 1 ? a:2 : s:get_package_name()
+  let srcpath     = join(s:get_source_dirs(a:0 > 0 && a:1 != bufnr('%') ? a:1 : expand('%:p'), packagename), ',')
 
   let names = split(typename, '\.')
   " remove the package name if in the same packge
@@ -2428,7 +2430,7 @@ fu! s:DoGetClassInfo(class, ...)
 
   " a FQN
   if len(names) > 1
-    call s:DoGetTypeInfoForFQN([typename], srcpath)
+    call s:get_fqn([typename], srcpath)
     let ci = get(s:cache, typename, {})
     if get(ci, 'tag', '') == 'CLASSDEF'
       return s:cache[typename]
@@ -2447,18 +2449,18 @@ fu! s:DoGetClassInfo(class, ...)
 
   " 1 & 2.
   " NOTE: inherited types are treated as normal
-  if filekey == s:GetCurrentFileKey()
+  if filekey == s:get_current_file_key()
     let simplename = typename[strridx(typename, '.')+1:]
-    if s:FoundClassDeclaration(simplename) != 0
+    if s:found_class_declaration(simplename) != 0
       call s:info('A1&2')
-      let ci = s:GetClassInfoFromSource(simplename, '%')
+      let ci = s:get_class_info_from_source(simplename, '%')
       " do not cache it
       if !empty(ci)
         return ci
       endif
     endif
   else
-    let ci = s:GetClassInfoFromSource(typename, filekey)
+    let ci = s:get_class_info_from_source(typename, filekey)
     if !empty(ci)
       return ci
     endif
@@ -2469,7 +2471,7 @@ fu! s:DoGetClassInfo(class, ...)
   let fqn = s:SearchSingleTypeImport(typename, s:get_imports('imports_fqn', filekey))
   if !empty(fqn)
     call s:info('A3')
-    call s:DoGetTypeInfoForFQN([fqn], srcpath)
+    call s:get_fqn([fqn], srcpath)
     let ti = get(s:cache, fqn, {})
     if get(ti, 'tag', '') != 'CLASSDEF'
       " TODO: mark the wrong import declaration.
@@ -2484,7 +2486,7 @@ fu! s:DoGetClassInfo(class, ...)
   for p in s:get_imports('imports_star', filekey)
     call add(fqns, p . typename)
   endfor
-  call s:DoGetTypeInfoForFQN(fqns, srcpath)
+  call s:get_fqn(fqns, srcpath)
   for fqn in fqns
     if has_key(s:cache, fqn)
       return get(s:cache[fqn], 'tag', '') == 'CLASSDEF' ? s:cache[fqn] : {}
@@ -2493,7 +2495,7 @@ fu! s:DoGetClassInfo(class, ...)
 
   call s:trace('java.lang complete')
   let fqns = ['java.lang.' . typename]
-  call s:DoGetTypeInfoForFQN(fqns, srcpath)
+  call s:get_fqn(fqns, srcpath)
   for fqn in fqns
     if has_key(s:cache, fqn)
       return get(s:cache[fqn], 'tag', '') == 'CLASSDEF' ? s:cache[fqn] : {}
@@ -2541,15 +2543,15 @@ endfu
 "   class  the qualified class name
 " Return:  TClassInfo or {} when not found
 " See ClassInfoFactory.getClassInfo() in insenvim.
-function! s:DoGetReflectionClassInfo(fqn)
+function! s:get_reflection_class_info(fqn)
   if !has_key(s:cache, a:fqn)
-    let res = s:RunReflection('-C', a:fqn, 's:DoGetReflectionClassInfo')
+    let res = s:run_reflection('-C', a:fqn, 's:get_reflection_class_info')
     if res =~ '^{'
-      let s:cache[a:fqn] = s:Sort(eval(res))
+      let s:cache[a:fqn] = s:sort(eval(res))
     elseif res =~ '^['
       for type in eval(res)
         if get(type, 'name', '') != ''
-          let s:cache[type.name] = s:Sort(type)
+          let s:cache[type.name] = s:sort(type)
         endif
       endfor
     else
@@ -2559,19 +2561,19 @@ function! s:DoGetReflectionClassInfo(fqn)
   return get(s:cache, a:fqn, {})
 endfunction
 
-fu! s:GetClassInfoFromSource(class, filename)
+fu! s:get_class_info_from_source(class, filename)
   let ci = {}
   if len(tagfiles()) > 0
-    let ci = s:DoGetClassInfoFromTags(a:class)
+    let ci = s:do_get_class_info_from_tags(a:class)
   endif
 
   if empty(ci)
     call s:info('Use java_parser.vim to generate class information')
     let unit = javacomplete#parse(a:filename)
     let targetPos = a:filename == '%' ? java_parser#MakePos(line('.')-1, col('.')-1) : -1
-    for t in s:SearchTypeAt(unit, targetPos, 1)
+    for t in s:search_type_at(unit, targetPos, 1)
       if t.name == a:class
-        let t.filepath = a:filename == '%' ? s:GetCurrentFileKey() : expand(a:filename)
+        let t.filepath = a:filename == '%' ? s:get_current_file_key() : expand(a:filename)
         return s:Tree2ClassInfo(t)
         "return s:AddInheritedClassInfo(s:Tree2ClassInfo(t), t)
       endif
@@ -2600,18 +2602,18 @@ fu! s:Tree2ClassInfo(t)
 
   " convert type name in extends to fqn for class defined in source files
   if !has_key(a:t, 'classpath') && has_key(a:t, 'extends')
-    if has_key(a:t, 'filepath') && a:t.filepath != s:GetCurrentFileKey()
+    if has_key(a:t, 'filepath') && a:t.filepath != s:get_current_file_key()
       let filepath = a:t.filepath
       let packagename = get(s:files[filepath].unit, 'package', '')
     else
       let filepath = expand('%:p')
-      let packagename = s:GetPackageName()
+      let packagename = s:get_package_name()
     endif
 
     let extends = a:t.extends
     let i = 0
     while i < len(extends)
-      let ci = s:DoGetClassInfo(java_parser#type2Str(extends[i]), filepath, packagename)
+      let ci = s:do_get_class_info(java_parser#type2Str(extends[i]), filepath, packagename)
       if has_key(ci, 'fqn')
         let extends[i] = ci.fqn
       endif
@@ -2636,18 +2638,18 @@ endfu
 "    let packagename = get(props.unit, 'package', '')
 "  else
 "    let filepath = expand('%:p')
-"    let packagename = s:GetPackageName()
+"    let packagename = s:get_package_name()
 "  endif
 "
 "  for id in list
-"    let ci = s:MergeClassInfo(ci, s:DoGetClassInfo(id, filepath, packagename), a:0 > 0 && a:1)
+"    let ci = s:MergeClassInfo(ci, s:do_get_class_info(id, filepath, packagename), a:0 > 0 && a:1)
 "  endfor
 "  return ci
 "endfu
 
 " To obtain information of the class in current file or current folder, or
 " even in current project.
-function! s:DoGetClassInfoFromTags(class)
+function! s:do_get_class_info_from_tags(class)
   " find tag of a:class declaration
   let tags = taglist('^' . a:class)
   let filename = ''
@@ -2717,12 +2719,12 @@ endfu
 
 " package information              {{{2
 
-fu! s:DoGetInfoByReflection(class, option)
+fu! s:do_get_info_by_reflection(class, option)
   if has_key(s:cache, a:class)
     return s:cache[a:class]
   endif
 
-  let res = s:RunReflection(a:option, a:class, 's:DoGetInfoByReflection')
+  let res = s:run_reflection(a:option, a:class, 's:do_get_info_by_reflection')
   if res =~ '^[{\[]'
     let v = eval(res)
     if type(v) == type([])
@@ -2790,7 +2792,7 @@ fu! s:SearchMember(ci, name, fullmatch, kind, returnAll, memberkind, ...)
   " All public members of a loaded class are stored in current ci
   if !has_key(a:ci, 'classpath') || (a:kind == 1 || a:kind == 2)
     for i in get(a:ci, 'extends', [])
-      let ci = s:DoGetClassInfo(java_parser#type2Str(i))
+      let ci = s:do_get_class_info(java_parser#type2Str(i))
       let members = s:SearchMember(ci, a:name, a:fullmatch, a:kind == 1 ? 2 : a:kind, a:returnAll, a:memberkind)
       let result[0] += members[0]
       let result[1] += members[1]
@@ -2826,7 +2828,7 @@ endfu
 "  12 - for import static, no lparen for static methods
 "  13 - for import or extends or implements, only nested types
 "  20 - for package
-fu! s:DoGetMemberList(ci, kind)
+fu! s:do_get_member_list(ci, kind)
   if type(a:ci) != type({}) || a:ci == {}
     return []
   endif
@@ -2885,20 +2887,20 @@ fu! s:DoGetMemberList(ci, kind)
 
 " interface              {{{2
 
-function! s:GetMemberList(class)
-  if s:IsBuiltinType(a:class)
+function! s:get_member_list(class)
+  if s:is_builtin_type(a:class)
     return []
   endif
 
-  return s:DoGetMemberList(s:DoGetClassInfo(a:class), 0)
+  return s:do_get_member_list(s:do_get_class_info(a:class), 0)
 endfunction
 
 fu! s:GetStaticMemberList(class)
-  return s:DoGetMemberList(s:DoGetClassInfo(a:class), 11)
+  return s:do_get_member_list(s:do_get_class_info(a:class), 11)
 endfu
 
 function! s:get_constructor_list(class)
-  let ci = s:DoGetClassInfo(a:class)
+  let ci = s:do_get_class_info(a:class)
   if empty(ci)
     return []
   endif
@@ -2919,7 +2921,7 @@ fu! s:get_members(fqn, ...)
   let list = []
   let isClass = 0
 
-  let v = s:DoGetInfoByReflection(a:fqn, '-E')
+  let v = s:do_get_info_by_reflection(a:fqn, '-E')
   if type(v) == type([])
     let list = v
   elseif type(v) == type({}) && v != {}
@@ -2937,7 +2939,7 @@ fu! s:get_members(fqn, ...)
       endfor
     else  " elseif get(v, 'tag', '') == 'CLASSDEF'
       let isClass = 1
-      let list += s:DoGetMemberList(v, b:context_type == s:CONTEXT_IMPORT || b:context_type == s:CONTEXT_NEED_TYPE ? 13 : b:context_type == s:CONTEXT_IMPORT_STATIC ? 12 : 11)
+      let list += s:do_get_member_list(v, b:context_type == s:CONTEXT_IMPORT || b:context_type == s:CONTEXT_NEED_TYPE ? 13 : b:context_type == s:CONTEXT_IMPORT_STATIC ? 12 : 11)
     endif
   endif
 
@@ -2953,7 +2955,7 @@ endfu
 fu! s:DoGetPackageInfoInDirs(package, onlyPackages, ...)
   let list = []
 
-  let pathes = s:GetSourceDirs(expand('%:p'))
+  let pathes = s:get_source_dirs(expand('%:p'))
   for path in s:GetClassDirs()
     if index(pathes, path) <= 0
       call add(pathes, path)
