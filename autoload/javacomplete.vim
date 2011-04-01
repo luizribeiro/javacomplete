@@ -97,115 +97,168 @@ let s:RE_CASTING  = '^\s*(\(' .s:RE_QUALID. '\))\s*\(' . s:RE_IDENTIFIER . '\)\>
 let s:RE_KEYWORDS  = '\<\%(' . join(s:KEYWORDS, '\|') . '\)\>'
 
 " script variables            {{{1
-let s:cache   = {}  " FQN -> member list, e.g. {'java.lang.StringBuffer': classinfo, 'java.util': packageinfo, '/dir/TopLevelClass.java': compilationUnit}
-let s:files   = {}  " srouce file path -> properties, e.g. {filekey: {'unit': compilationUnit, 'changedtick': tick, }}
-let s:history = {}  " 
+" FQN -> member list, 
+" e.g. {'java.lang.StringBuffer': classinfo, 'java.util': packageinfo, '/dir/TopLevelClass.java': compilationUnit}
+let s:cache   = {}
+" srouce file path -> properties, 
+" e.g. {filekey: {'unit': compilationUnit, 'changedtick': tick, }}
+let s:files   = {}
+let s:history = {}
 let s:log     = []
 
+let b:context_type = s:CONTEXT_OTHER
+" expression ends with '.'
+let b:dotexpr      = ''
+" incomplete word:
+" 1. dotexpr.method(|)
+" 2. new classname(|)
+" 3. dotexpr.ab|,
+" 4. ja|,
+" 5. method(|
+let b:incomplete   = ''
+let b:errormsg     = ''
 " This function is used for the 'omnifunc' option.    {{{1
 function! javacomplete#Complete(findstart, base)
 
-  call s:Trace('***************************************')
-  call s:Trace('*     javacomplete#Complete start     *')
-  call s:Trace('***************************************')
-  call s:Trace('findstart : ' . a:findstart)
-  call s:Trace('base      : ' . a:base)
-
-  " local variables            {{{1
-  if !exists('b:context_type')
-    let b:context_type = s:CONTEXT_OTHER
-  endif
-  "let b:statement = ''      " statement before cursor
-  if !exists('b:dotexpr')
-    let b:dotexpr = ''      " expression ends with '.'
-  endif
-  if !exists('b:incomplete')
-    let b:incomplete = ''      " incomplete word: 1. dotexpr.method(|) 2. new classname(|) 3. dotexpr.ab|, 4. ja|, 5. method(|
-  endif
-  if !exists('b:errormsg')
-    let b:errormsg = ''
-  endif
+  call s:trace('***************************************')
+  call s:trace('*     javacomplete#Complete start     *')
+  call s:trace('***************************************')
+  call s:trace('findstart : ' . a:findstart)
+  call s:trace('base      : ' . a:base)
 
   if a:findstart
-    let s:et_whole = reltime()
-    let start = col('.') - 1
+    return s:findstart()
+  end
 
-    " reset enviroment
-    let b:dotexpr = ''
+  " Return list of matches.
+  call s:watch('b:context_type: "' . b:context_type . 
+               \ '"  b:incomplete: "' . b:incomplete . 
+               \ '"  b:dotexpr: "' . b:dotexpr . '"')
+  if b:dotexpr =~ '^\s*$' && b:incomplete =~ '^\s*$'
+    return []
+  endif
+
+  let result = []
+  if b:dotexpr !~ '^\s*$'
+    let result = s:complete_with_dot()
+    " only incomplete word
+  elseif b:incomplete !~ '^\s*$'
+    let result = s:complete_incomplete_words()
+    " then no filter needed
     let b:incomplete = ''
-    let b:context_type = s:CONTEXT_OTHER
+  endif
 
-    let statement = s:GetStatement()
-    call s:WatchVariant('statement: "' . statement . '"')
+  if len(result) > 0
+    " filter according to b:incomplete
+    if len(b:incomplete) > 0 && b:incomplete != '+'
+      let result = filter(result, "type(v:val) == type('') ? v:val =~ '^" . b:incomplete . "' : v:val['word'] =~ '^" . b:incomplete . "'")
+    endif
 
-    if statement =~ '[.0-9A-Za-z_]\s*$'
-      let valid = 1
-      if statement =~ '\.\s*$'
-        let valid = statement =~ '[")0-9A-Za-z_\]]\s*\.\s*$' && statement !~ '\<\H\w\+\.\s*$' && statement !~ '\<\(abstract\|assert\|break\|case\|catch\|const\|continue\|default\|do\|else\|enum\|extends\|final\|finally\|for\|goto\|if\|implements\|import\|instanceof\|interface\|native\|new\|package\|private\|protected\|public\|return\|static\|strictfp\|switch\|synchronized\|throw\|throws\|transient\|try\|volatile\|while\|true\|false\|null\)\.\s*$'
-      endif
-      if !valid
-        return -1
-      endif
-
-      let b:context_type = s:CONTEXT_AFTER_DOT
-
-      " import or package declaration
-      if statement =~# '^\s*\(import\|package\)\s\+'
-        let statement = substitute(statement, '\s\+\.', '.', 'g')
-        let statement = substitute(statement, '\.\s\+', '.', 'g')
-        if statement =~ '^\s*import\s\+'
-          let b:context_type = statement =~# '\<static\s\+' ? s:CONTEXT_IMPORT_STATIC : s:CONTEXT_IMPORT
-          let b:dotexpr = substitute(statement, '^\s*import\s\+\(static\s\+\)\?', '', '')
+    if exists('s:padding') && !empty(s:padding)
+      for item in result
+        if type(item) == type("")
+          let item .= s:padding
         else
-          let b:context_type = s:CONTEXT_PACKAGE_DECL
-          let b:dotexpr = substitute(statement, '\s*package\s\+', '', '')
+          let item.word .= s:padding
         endif
+      endfor
+      unlet s:padding
+    endif
 
-        " String literal
-      elseif statement =~  '"\s*\.\s*$'
-        let b:dotexpr = substitute(statement, '\s*\.\s*$', '\.', '')
-        return start - strlen(b:incomplete)
+    call s:debug('finish completion' . reltimestr(reltime(s:et_whole)) . 's')
+    return result
+  endif
 
+  if strlen(b:errormsg) > 0
+    echoerr 'javacomplete error: ' . b:errormsg
+    let b:errormsg = ''
+  endif
+endfunction
+"
+"
+"
+function! s:findstart()
+  let s:et_whole = reltime()
+  let start = col('.') - 1
+
+  " reset enviroment
+  let b:dotexpr      = ''
+  let b:incomplete   = ''
+  let b:context_type = s:CONTEXT_OTHER
+
+  let statement = s:GetStatement()
+  call s:watch('statement: "' . statement . '"')
+
+  if statement =~ '[.0-9A-Za-z_]\s*$'
+    let valid = 1
+    if statement =~ '\.\s*$'
+      let valid = statement =~ '[")0-9A-Za-z_\]]\s*\.\s*$' 
+                     \ && statement !~ '\<\H\w\+\.\s*$' 
+                     \ && statement !~ '\<\(abstract\|assert\|break\|case\|catch\|const\|continue\|default\|do\|else\|enum\|extends\|final\|finally\|for\|goto\|if\|implements\|import\|instanceof\|interface\|native\|new\|package\|private\|protected\|public\|return\|static\|strictfp\|switch\|synchronized\|throw\|throws\|transient\|try\|volatile\|while\|true\|false\|null\)\.\s*$'
+    endif
+    if !valid
+      return -1
+    endif
+
+    let b:context_type = s:CONTEXT_AFTER_DOT
+
+    " import or package declaration
+    if statement =~# '^\s*\(import\|package\)\s\+'
+      let statement = substitute(statement, '\s\+\.', '.', 'g')
+      let statement = substitute(statement, '\.\s\+', '.', 'g')
+      if statement =~ '^\s*import\s\+'
+        let b:context_type = statement =~# '\<static\s\+' ? s:CONTEXT_IMPORT_STATIC : s:CONTEXT_IMPORT
+        let b:dotexpr = substitute(statement, '^\s*import\s\+\(static\s\+\)\?', '', '')
       else
-        " type declaration    NOTE: not supported generic yet.
-        let idx_type = matchend(statement, '^\s*' . s:RE_TYPE_DECL)
-        if idx_type != -1
-          let b:dotexpr = strpart(statement, idx_type)
-          " return if not after extends or implements
-          if b:dotexpr !~ '^\(extends\|implements\)\s\+'
-            return -1
-          endif
-          let b:context_type = s:CONTEXT_NEED_TYPE
-        endif
-
-        let b:dotexpr = s:ExtractCleanExpr(statement)
+        let b:context_type = s:CONTEXT_PACKAGE_DECL
+        let b:dotexpr = substitute(statement, '\s*package\s\+', '', '')
       endif
 
-      " all cases: " java.ut|" or " java.util.|" or "ja|"
-      let b:incomplete = strpart(b:dotexpr, strridx(b:dotexpr, '.')+1)
-      let b:dotexpr = strpart(b:dotexpr, 0, strridx(b:dotexpr, '.')+1)
+      " String literal
+    elseif statement =~  '"\s*\.\s*$'
+      let b:dotexpr = substitute(statement, '\s*\.\s*$', '\.', '')
       return start - strlen(b:incomplete)
 
-
-      " method parameters, treat methodname or 'new' as an incomplete word
-    elseif statement =~ '(\s*$'
-      " TODO: Need to exclude method declaration?
-      let b:context_type = s:CONTEXT_METHOD_PARAM
-      let pos = strridx(statement, '(')
-      let s:padding = strpart(statement, pos+1)
-      let start = start - (len(statement) - pos)
-
-      let statement = substitute(statement, '\s*(\s*$', '', '')
-
-      " new ClassName?
-      let str = matchstr(statement, '\<new\s\+' . s:RE_QUALID . '$')
-      if str != ''
-        let str = substitute(str, '^new\s\+', '', '')
-        if !s:IsKeyword(str)
-          let b:incomplete = '+'
-          let b:dotexpr = str
-          return start - len(b:dotexpr)
+    else
+      " type declaration    NOTE: not supported generic yet.
+      let idx_type = matchend(statement, '^\s*' . s:RE_TYPE_DECL)
+      if idx_type != -1
+        let b:dotexpr = strpart(statement, idx_type)
+        " return if not after extends or implements
+        if b:dotexpr !~ '^\(extends\|implements\)\s\+'
+          return -1
         endif
+        let b:context_type = s:CONTEXT_NEED_TYPE
+      endif
+
+      let b:dotexpr = s:ExtractCleanExpr(statement)
+    endif
+
+    " all cases: " java.ut|" or " java.util.|" or "ja|"
+    let b:incomplete = strpart(b:dotexpr, strridx(b:dotexpr, '.')+1)
+    let b:dotexpr = strpart(b:dotexpr, 0, strridx(b:dotexpr, '.')+1)
+    return start - strlen(b:incomplete)
+
+
+    " method parameters, treat methodname or 'new' as an incomplete word
+  elseif statement =~ '(\s*$'
+    " TODO: Need to exclude method declaration?
+    let b:context_type = s:CONTEXT_METHOD_PARAM
+    let pos = strridx(statement, '(')
+    let s:padding = strpart(statement, pos+1)
+    let start = start - (len(statement) - pos)
+
+    let statement = substitute(statement, '\s*(\s*$', '', '')
+
+    " new ClassName?
+    let str = matchstr(statement, '\<new\s\+' . s:RE_QUALID . '$')
+    if str != ''
+      let str = substitute(str, '^new\s\+', '', '')
+      if !s:IsKeyword(str)
+        let b:incomplete = '+'
+        let b:dotexpr = str
+        return start - len(b:dotexpr)
+      endif
 
         " normal method invocations
       else
@@ -235,76 +288,48 @@ function! javacomplete#Complete(findstart, base)
 
     return -1
   endif
-
-
-  " Return list of matches.
-
-  call s:WatchVariant('b:context_type: "' . b:context_type . '"  b:incomplete: "' . b:incomplete . '"  b:dotexpr: "' . b:dotexpr . '"')
-  if b:dotexpr =~ '^\s*$' && b:incomplete =~ '^\s*$'
-    return []
-  endif
-
-
-  let result = []
-  if b:dotexpr !~ '^\s*$'
-    if b:context_type == s:CONTEXT_AFTER_DOT
-      let result = s:CompleteAfterDot(b:dotexpr)
-    elseif b:context_type == s:CONTEXT_IMPORT || b:context_type == s:CONTEXT_IMPORT_STATIC || b:context_type == s:CONTEXT_PACKAGE_DECL || b:context_type == s:CONTEXT_NEED_TYPE
-      let result = s:GetMembers(b:dotexpr[:-2])
-    elseif b:context_type == s:CONTEXT_METHOD_PARAM
-      if b:incomplete == '+'
-        let result = s:GetConstructorList(b:dotexpr)
-      else
-        let result = s:CompleteAfterDot(b:dotexpr)
-      endif
-    endif
-
-    " only incomplete word
-  elseif b:incomplete !~ '^\s*$'
-    " only need methods
-    if b:context_type == s:CONTEXT_METHOD_PARAM
-      let methods = s:SearchForName(b:incomplete, 0, 1)[1]
-      call extend(result, eval('[' . s:DoGetMethodList(methods) . ']'))
-
-    else
-      let result = s:CompleteAfterWord(b:incomplete)
-    endif
-
-    " then no filter needed
-    let b:incomplete = ''
-  endif
-
-
-  if len(result) > 0
-    " filter according to b:incomplete
-    if len(b:incomplete) > 0 && b:incomplete != '+'
-      let result = filter(result, "type(v:val) == type('') ? v:val =~ '^" . b:incomplete . "' : v:val['word'] =~ '^" . b:incomplete . "'")
-    endif
-
-    if exists('s:padding') && !empty(s:padding)
-      for item in result
-        if type(item) == type("")
-          let item .= s:padding
-        else
-          let item.word .= s:padding
-        endif
-      endfor
-      unlet s:padding
-    endif
-
-    call s:Debug('finish completion' . reltimestr(reltime(s:et_whole)) . 's')
-    return result
-  endif
-
-  if strlen(b:errormsg) > 0
-    echoerr 'javacomplete error: ' . b:errormsg
-    let b:errormsg = ''
-  endif
 endfunction
+"
+"
+"
+function! s:complete_with_dot()
+  if b:context_type == s:CONTEXT_AFTER_DOT
+    return s:complete_after_dot(b:dotexpr)
+
+  elseif b:context_type == s:CONTEXT_IMPORT 
+        \ || b:context_type == s:CONTEXT_IMPORT_STATIC 
+        \ || b:context_type == s:CONTEXT_PACKAGE_DECL 
+        \ || b:context_type == s:CONTEXT_NEED_TYPE
+    return s:get_members(b:dotexpr[:-2])
+
+  elseif b:context_type == s:CONTEXT_METHOD_PARAM
+    if b:incomplete == '+'
+      return get_constructor_list(b:dotexpr)
+    endif
+    return s:complete_after_dot(b:dotexpr)
+  endif
+
+  return []
+endfunction
+"
+"
+"
+function! s:complete_incomplete_words()
+  let result = []
+  " only need methods
+  if b:context_type == s:CONTEXT_METHOD_PARAM
+    let methods = s:search_for_name(b:incomplete, 0, 1)[1]
+    call extend(result , eval('[' . s:get_method_lsit(methods) . ']'))
+  else
+    let result = s:complete_after_word(b:incomplete)
+  endif
+  return result
+endfunction
+
 
 " Precondition:  incomplete must be a word without '.'.
 " return all the matched, variables, fields, methods, types, packages
-fu! s:CompleteAfterWord(incomplete)
+fu! s:complete_after_word(incomplete)
   " packages in jar files
   if !exists('s:all_packages_in_jars_loaded')
     call s:DoGetInfoByReflection('-', '-P')
@@ -332,7 +357,7 @@ fu! s:CompleteAfterWord(incomplete)
   " TODO: remove the inaccessible
   if b:context_type != s:CONTEXT_PACKAGE_DECL
     " single type import
-    for fqn in s:GetImports('imports_fqn')
+    for fqn in s:get_imports('imports_fqn')
       let name = fqn[strridx(fqn, ".")+1:]
       if name =~ '^' . a:incomplete
         call add(types, {'kind': 'C', 'word': name})
@@ -380,9 +405,9 @@ fu! s:CompleteAfterWord(incomplete)
 
   " add variables and members in source files
   if b:context_type == s:CONTEXT_AFTER_DOT
-    let matches = s:SearchForName(a:incomplete, 0, 0)
+    let matches = s:search_for_name(a:incomplete, 0, 0)
     let result += sort(eval('[' . s:DoGetFieldList(matches[2]) . ']'))
-    let result += sort(eval('[' . s:DoGetMethodList(matches[1]) . ']'))
+    let result += sort(eval('[' . s:get_method_lsit(matches[1]) . ']'))
   endif
   let result += sort(pkgs)
   let result += sort(types)
@@ -390,10 +415,9 @@ fu! s:CompleteAfterWord(incomplete)
   return result
 endfu
 
-
 " Precondition:  expr must end with '.'
 " return members of the value of expression
-function! s:CompleteAfterDot(expr)
+function! s:complete_after_dot(expr)
   let items = s:ParseExpr(a:expr)    " TODO: return a dict containing more than items
   if empty(items)
     return []
@@ -401,7 +425,7 @@ function! s:CompleteAfterDot(expr)
 
 
   " 0. String literal
-  call s:Info('P0. "str".|')
+  call s:info('P0. "str".|')
   if items[-1] =~  '"$'
     return s:GetMemberList("java.lang.String")
   endif
@@ -432,7 +456,7 @@ function! s:CompleteAfterDot(expr)
   if i > 1
     " cases: "this.|", "super.|", "ClassName.this.|", "ClassName.super.|", "TypeName.class.|"
     if items[k] ==# 'class' || items[k] ==# 'this' || items[k] ==# 'super'
-      call s:Info('O1. ' . items[k] . ' ' . join(items[:k-1], '.'))
+      call s:info('O1. ' . items[k] . ' ' . join(items[:k-1], '.'))
       let ti = s:DoGetClassInfo(items[k] == 'class' ? 'java.lang.Class' : join(items[:k-1], '.'))
       if !empty(ti)
         let itemkind = items[k] ==# 'this' ? 1 : items[k] ==# 'super' ? 2 : 0
@@ -445,7 +469,7 @@ function! s:CompleteAfterDot(expr)
     else
       let fqn = join(items[:i-1], '.')
       let srcpath = join(s:GetSourceDirs(expand('%:p'), s:GetPackageName()), ',')
-      call s:Info('O2. ' . fqn)
+      call s:info('O2. ' . fqn)
       call s:DoGetTypeInfoForFQN([fqn], srcpath)
       if get(get(s:cache, fqn, {}), 'tag', '') == 'CLASSDEF'
         let ti = s:cache[fqn]
@@ -471,13 +495,13 @@ function! s:CompleteAfterDot(expr)
 
       if s:IsKeyword(ident)
         " 1)
-        call s:Info('F1. "' . ident . '.|"')
+        call s:info('F1. "' . ident . '.|"')
         if ident ==# 'void' || s:IsBuiltinType(ident)
           let ti = s:PRIMITIVE_TYPE_INFO
           let itemkind = 11
 
           " 2)
-          call s:Info('F2. "' . ident . '.|"')
+          call s:info('F2. "' . ident . '.|"')
         elseif ident ==# 'this' || ident ==# 'super'
           let itemkind = ident ==# 'this' ? 1 : ident ==# 'super' ? 2 : 0
           let ti = s:DoGetClassInfo(ident)
@@ -486,7 +510,7 @@ function! s:CompleteAfterDot(expr)
       else
         " 3)
         let typename = s:GetDeclaredClassName(ident)
-        call s:Info('F3. "' . ident . '.|"  typename: "' . typename . '"')
+        call s:info('F3. "' . ident . '.|"  typename: "' . typename . '"')
         if (typename != '')
           if typename[0] == '[' || typename[-1:] == ']'
             let ti = s:ARRAY_TYPE_INFO
@@ -496,7 +520,7 @@ function! s:CompleteAfterDot(expr)
 
         else
           " 4)
-          call s:Info('F4. "TypeName.|"')
+          call s:info('F4. "TypeName.|"')
           let ti = s:DoGetClassInfo(ident)
           let itemkind = 11
 
@@ -506,9 +530,9 @@ function! s:CompleteAfterDot(expr)
 
           " 5)
           if empty(ti)
-            call s:Info('F5. "package.|"')
+            call s:info('F5. "package.|"')
             unlet ti
-            let ti = s:GetMembers(ident)  " s:DoGetPackegInfo(ident)
+            let ti = s:get_members(ident)  " s:DoGetPackegInfo(ident)
             let itemkind = 20
           endif
         endif
@@ -520,7 +544,7 @@ function! s:CompleteAfterDot(expr)
 
       " array type, return `class`: "int[] [].|", "java.lang.String[].|", "NestedClass[].|"
     elseif items[0] =~# s:RE_ARRAY_TYPE
-      call s:Info('array type. "' . items[0] . '"')
+      call s:info('array type. "' . items[0] . '"')
       let qid = substitute(items[0], s:RE_ARRAY_TYPE, '\1', '')
       if s:IsBuiltinType(qid) || (!s:HasKeyword(qid) && !empty(s:DoGetClassInfo(qid)))
         let ti = s:PRIMITIVE_TYPE_INFO
@@ -530,7 +554,7 @@ function! s:CompleteAfterDot(expr)
       " class instance creation expr:  "new String().|", "new NonLoadableClass().|"
       " array creation expr:  "new int[i=1] [val()].|", "new java.lang.String[].|"
     elseif items[0] =~ '^\s*new\s\+'
-      call s:Info('creation expr. "' . items[0] . '"')
+      call s:info('creation expr. "' . items[0] . '"')
       let subs = split(substitute(items[0], '^\s*new\s\+\(' .s:RE_QUALID. '\)\s*\([([]\)', '\1;\2', ''), ';')
       if subs[1][0] == '['
         let ti = s:ARRAY_TYPE_INFO
@@ -546,7 +570,7 @@ function! s:CompleteAfterDot(expr)
 
       " casting conversion:  "(Object)o.|"
     elseif items[0] =~ s:RE_CASTING
-      call s:Info('Casting conversion. "' . items[0] . '"')
+      call s:info('Casting conversion. "' . items[0] . '"')
       let subs = split(substitute(items[0], s:RE_CASTING, '\1;\2', ''), ';')
       let ti = s:DoGetClassInfo(subs[0])
 
@@ -555,7 +579,7 @@ function! s:CompleteAfterDot(expr)
       let subs = split(substitute(items[0], s:RE_ARRAY_ACCESS, '\1;\2', ''), ';')
       if get(subs, 1, '') !~ s:RE_BRACKETS
         let typename = s:GetDeclaredClassName(subs[0])
-        call s:Info('ArrayAccess. "' .items[0]. '.|"  typename: "' . typename . '"')
+        call s:info('ArrayAccess. "' .items[0]. '.|"  typename: "' . typename . '"')
         if (typename != '')
           let ti = s:ArrayAccess(typename, items[0])
         endif
@@ -590,7 +614,7 @@ function! s:CompleteAfterDot(expr)
           if idx >= 0
             if ti[idx].kind == 'P'
               unlet ti
-              let ti = s:GetMembers(qn)
+              let ti = s:get_members(qn)
               let ii += 1
               continue
             elseif ti[idx].kind == 'C'
@@ -669,7 +693,7 @@ function! s:CompleteAfterDot(expr)
         endif
       elseif get(ti, 'tag', '') == 'PACKAGE'
         " TODO: ti -> members, in addition to packages in dirs
-        return s:GetMembers( substitute(join(items, '.'), '\s', '', 'g') )
+        return s:get_members( substitute(join(items, '.'), '\s', '', 'g') )
       endif
     elseif type(ti) == type([])
       return ti
@@ -685,7 +709,7 @@ fu! s:MethodInvocation(expr, ti, itemkind)
 
   " all methods matched
   if empty(a:ti)
-    let methods = s:SearchForName(subs[0], 0, 1)[1]
+    let methods = s:search_for_name(subs[0], 0, 1)[1]
   elseif type(a:ti) == type({}) && get(a:ti, 'tag', '') == 'CLASSDEF'
     let methods = s:SearchMember(a:ti, subs[0], 1, a:itemkind, 1, 0, a:itemkind == 2)[1]
     "    let methods = s:filter(get(a:ti, 'methods', []), 'item.n == "' . subs[0] . '"')
@@ -756,12 +780,12 @@ fu! javacomplete#CompleteParamsInfo(findstart, base)
   " TODO: how to determine overloaded functions
   "let mi.params = s:EvalParams(mi.params)
   if empty(mi.expr)
-    let methods = s:SearchForName(mi.method, 0, 1)[1]
-    let result = eval('[' . s:DoGetMethodList(methods) . ']')
+    let methods = s:search_for_name(mi.method, 0, 1)[1]
+    let result = eval('[' . s:get_method_lsit(methods) . ']')
   elseif mi.method == '+'
-    let result = s:GetConstructorList(mi.expr)
+    let result = s:get_constructor_list(mi.expr)
   else
-    let result = s:CompleteAfterDot(mi.expr)
+    let result = s:complete_after_dot(mi.expr)
   endif
 
   if !empty(result)
@@ -991,7 +1015,7 @@ function! s:GenerateImports()
   return imports
 endfunction
 
-fu! s:GetImports(kind, ...)
+fu! s:get_imports(kind, ...)
   let filekey = a:0 > 0 && !empty(a:1) ? a:1 : s:GetCurrentFileKey()
   let props = get(s:files, filekey, {})
   if !has_key(props, a:kind)
@@ -1037,7 +1061,7 @@ endfu
 fu! s:SearchStaticImports(name, fullmatch)
   let result = [[], [], []]
   let candidates = []    " list of the canonical name
-  for item in s:GetImports('imports_static')
+  for item in s:get_imports('imports_static')
     if item[-1:] == '*'    " static import on demand
       call add(candidates, item[:-3])
     elseif item[strridx(item, '.')+1:] ==# a:name
@@ -1279,7 +1303,7 @@ endfunction
 " first    return at once if found one.
 " fullmatch  1 - equal, 0 - match beginning
 " return [types, methods, fields, vars]
-fu! s:SearchForName(name, first, fullmatch)
+fu! s:search_for_name(name, first, fullmatch)
   let result = [[], [], [], []]
   if s:IsKeyword(a:name)
     return result
@@ -1340,7 +1364,7 @@ endfu
 " Parser.GetType() in insenvim
 function! s:GetDeclaredClassName(var)
   let var = s:Trim(a:var)
-  call s:Trace('GetDeclaredClassName for "' . var . '"')
+  call s:trace('GetDeclaredClassName for "' . var . '"')
   if var =~# '^\(this\|super\)$'
     return var
   endif
@@ -1355,7 +1379,7 @@ function! s:GetDeclaredClassName(var)
 
   " use java_parser.vim
   if javacomplete#GetSearchdeclMethod() == 4
-    let variable = get(s:SearchForName(var, 1, 1)[2], -1, {})
+    let variable = get(s:search_for_name(var, 1, 1)[2], -1, {})
     return get(variable, 'tag', '') == 'VARDEF' ? java_parser#type2Str(variable.vartype) : get(variable, 't', '')
   endif
 
@@ -1376,7 +1400,7 @@ function! s:GetDeclaredClassName(var)
     let class = substitute(declaration, '^\(public\s\+\|protected\s\+\|private\s\+\|abstract\s\+\|static\s\+\|final\s\+\|native\s\+\)*', '', '')
       let class = substitute(class, '\s*\([a-zA-Z0-9_.]\+\)\(\[\]\)\?\s\+.*', '\1\2', '')
       let class = substitute(class, '\([a-zA-Z0-9_.]\)<.*', '\1', '')
-      call s:Info('class: "' . class . '" declaration: "' . declaration . '" for ' . a:var)
+      call s:info('class: "' . class . '" declaration: "' . declaration . '" for ' . a:var)
       let &ignorecase = ic
       if class != '' && class !=# a:var && class !=# 'import' && class !=# 'class'
         return class
@@ -1384,7 +1408,7 @@ function! s:GetDeclaredClassName(var)
     endif
 
     let &ignorecase = ic
-    call s:Trace('GetDeclaredClassName: cannot find')
+    call s:trace('GetDeclaredClassName: cannot find')
     return ''
   endfunction
 
@@ -1542,7 +1566,7 @@ fu! javacomplete#Searchdecl()
 
   " It may be an imported class.
   let imports = []
-  for fqn in s:GetImports('imports_fqn')
+  for fqn in s:get_imports('imports_fqn')
     if fqn =~# '\<' . var . '\>$'
       call add(imports, fqn)
     endif
@@ -2111,7 +2135,7 @@ endif
 
 
 " Log utilities                {{{1
-fu! s:WatchVariant(variant)
+fu! s:watch(variant)
   "echoerr a:variant
 endfu
 
@@ -2138,15 +2162,15 @@ fu! javacomplete#log()
   return s:log
 endfu
 
-fu! s:Trace(msg)
+fu! s:trace(msg)
   call s:Log(0, a:msg)
 endfu
 
-fu! s:Debug(msg)
+fu! s:debug(msg)
   call s:Log(1, a:msg)
 endfu
 
-fu! s:Info(msg)
+fu! s:info(msg)
   call s:Log(2, a:msg)
 endfu
 
@@ -2158,10 +2182,10 @@ fu! s:Log(level, key, ...)
 endfu
 
 fu! s:System(cmd, caller)
-  call s:WatchVariant(a:cmd)
+  call s:watch(a:cmd)
   let t = reltime()
   let res = system(a:cmd)
-  call s:Debug(reltimestr(reltime(t)) . 's to exec "' . a:cmd . '" by ' . a:caller)
+  call s:debug(reltimestr(reltime(t)) . 's to exec "' . a:cmd . '" by ' . a:caller)
   return res
 endfu
 
@@ -2302,7 +2326,7 @@ fu! s:DoGetTypeInfoForFQN(fqns, srcpath, ...)
   endif
 
 
-  call s:Info('FQN1&2: ' . string(keys(files)))
+  call s:info('FQN1&2: ' . string(keys(files)))
   for fqn in keys(files)
     if !has_key(s:cache, fqn) || get(get(s:files, files[fqn], {}), 'modifiedtime', 0) != getftime(files[fqn])
       let ti = s:GetClassInfoFromSource(fqn[strridx(fqn, '.')+1:], files[fqn])
@@ -2366,7 +2390,7 @@ fu! s:DoGetClassInfo(class, ...)
       return ci
     endif
 
-    call s:Info('A0. ' . a:class)
+    call s:info('A0. ' . a:class)
     " this can be a local class or anonymous class as well as static type
     let t = get(s:SearchTypeAt(javacomplete#parse(), java_parser#MakePos(line('.')-1, col('.')-1)), -1, {})
     if !empty(t)
@@ -2426,7 +2450,7 @@ fu! s:DoGetClassInfo(class, ...)
   if filekey == s:GetCurrentFileKey()
     let simplename = typename[strridx(typename, '.')+1:]
     if s:FoundClassDeclaration(simplename) != 0
-      call s:Info('A1&2')
+      call s:info('A1&2')
       let ci = s:GetClassInfoFromSource(simplename, '%')
       " do not cache it
       if !empty(ci)
@@ -2442,9 +2466,9 @@ fu! s:DoGetClassInfo(class, ...)
 
   " 3.
   " NOTE: PackageName.Ident, TypeName.Ident
-  let fqn = s:SearchSingleTypeImport(typename, s:GetImports('imports_fqn', filekey))
+  let fqn = s:SearchSingleTypeImport(typename, s:get_imports('imports_fqn', filekey))
   if !empty(fqn)
-    call s:Info('A3')
+    call s:info('A3')
     call s:DoGetTypeInfoForFQN([fqn], srcpath)
     let ti = get(s:cache, fqn, {})
     if get(ti, 'tag', '') != 'CLASSDEF'
@@ -2455,9 +2479,9 @@ fu! s:DoGetClassInfo(class, ...)
 
   " 4 & 5
   " NOTE: Keeps the fqn of the same package first!!
-  call s:Info('A4&5')
+  call s:info('A4&5')
   let fqns = [empty(packagename) ? typename : packagename . '.' . typename]
-  for p in s:GetImports('imports_star', filekey)
+  for p in s:get_imports('imports_star', filekey)
     call add(fqns, p . typename)
   endfor
   call s:DoGetTypeInfoForFQN(fqns, srcpath)
@@ -2467,7 +2491,7 @@ fu! s:DoGetClassInfo(class, ...)
     endif
   endfor
 
-  call s:Trace('java.lang complete')
+  call s:trace('java.lang complete')
   let fqns = ['java.lang.' . typename]
   call s:DoGetTypeInfoForFQN(fqns, srcpath)
   for fqn in fqns
@@ -2542,7 +2566,7 @@ fu! s:GetClassInfoFromSource(class, filename)
   endif
 
   if empty(ci)
-    call s:Info('Use java_parser.vim to generate class information')
+    call s:info('Use java_parser.vim to generate class information')
     let unit = javacomplete#parse(a:filename)
     let targetPos = a:filename == '%' ? java_parser#MakePos(line('.')-1, col('.')-1) : -1
     for t in s:SearchTypeAt(unit, targetPos, 1)
@@ -2787,7 +2811,7 @@ fu! s:DoGetFieldList(fields)
   return s
 endfu
 
-fu! s:DoGetMethodList(methods, ...)
+fu! s:get_method_lsit(methods, ...)
   let paren = a:0 == 0 || !a:1 ? '(' : ''
   let s = ''
   for method in a:methods
@@ -2847,10 +2871,10 @@ fu! s:DoGetMemberList(ci, kind)
 
     if a:kind / 10 == 0
       let s .= s:DoGetFieldList(fieldlist)
-      let s .= s:DoGetMethodList(methodlist)
+      let s .= s:get_method_lsit(methodlist)
     endif
     let s .= s:DoGetFieldList(sfieldlist)
-    let s .= s:DoGetMethodList(smethodlist, a:kind == 12)
+    let s .= s:get_method_lsit(smethodlist, a:kind == 12)
 
     let s = substitute(s, '\<' . a:ci.name . '\.', '', 'g')
     let s = substitute(s, '\<java\.lang\.', '', 'g')
@@ -2873,7 +2897,7 @@ fu! s:GetStaticMemberList(class)
   return s:DoGetMemberList(s:DoGetClassInfo(a:class), 11)
 endfu
 
-function! s:GetConstructorList(class)
+function! s:get_constructor_list(class)
   let ci = s:DoGetClassInfo(a:class)
   if empty(ci)
     return []
@@ -2891,7 +2915,7 @@ endfunction
 
 " Name can be a (simple or qualified) package name, or a (simple or qualified)
 " type name.
-fu! s:GetMembers(fqn, ...)
+fu! s:get_members(fqn, ...)
   let list = []
   let isClass = 0
 
