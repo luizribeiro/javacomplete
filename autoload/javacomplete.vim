@@ -6,7 +6,9 @@
 " Copyright:	Copyright (C) 2006-2007 cheng fang. All rights reserved.
 " License:	Vim License	(see vim's :help license)
 
-let g:javacomplete_log_level = 3
+if !exists('g:javacomplete_log_level')
+  let g:javacomplete_log_level = 3
+endif
 
 " constants							{{{1
 " input context type
@@ -94,14 +96,6 @@ let s:RE_CASTING	= '^\s*(\(' .s:RE_QUALID. '\))\s*\(' . s:RE_IDENTIFIER . '\)\>'
 
 let s:RE_KEYWORDS	= '\<\%(' . join(s:KEYWORDS, '\|') . '\)\>'
 
-
-" local variables						{{{1
-let b:context_type = s:CONTEXT_OTHER
-"let b:statement = ''			" statement before cursor
-let b:dotexpr = ''			" expression ends with '.'
-let b:incomplete = ''			" incomplete word: 1. dotexpr.method(|) 2. new classname(|) 3. dotexpr.ab|, 4. ja|, 5. method(|
-let b:errormsg = ''
-
 " script variables						{{{1
 let s:cache = {}	" FQN -> member list, e.g. {'java.lang.StringBuffer': classinfo, 'java.util': packageinfo, '/dir/TopLevelClass.java': compilationUnit}
 let s:files = {}	" srouce file path -> properties, e.g. {filekey: {'unit': compilationUnit, 'changedtick': tick, }}
@@ -110,6 +104,21 @@ let s:history = {}	"
 
 " This function is used for the 'omnifunc' option.		{{{1
 function! javacomplete#Complete(findstart, base)
+  " local variables						{{{1
+  if !exists('b:context_type')
+    let b:context_type = s:CONTEXT_OTHER
+  endif
+  "let b:statement = ''			" statement before cursor
+  if !exists('b:dotexpr')
+    let b:dotexpr = ''			" expression ends with '.'
+  endif
+  if !exists('b:incomplete')
+    let b:incomplete = ''			" incomplete word: 1. dotexpr.method(|) 2. new classname(|) 3. dotexpr.ab|, 4. ja|, 5. method(|
+  endif
+  if !exists('b:errormsg')
+    let b:errormsg = ''
+  endif
+
   if a:findstart
     let s:et_whole = reltime()
     let start = col('.') - 1
@@ -2113,7 +2122,7 @@ fu! javacomplete#SetLogLevel(level)
 endfu
 
 fu! javacomplete#GetLogLevel()
-  return exists('s:loglevel') ? g:loglevel : g:javacomplete_log_level
+  return exists('s:loglevel') ? s:loglevel : g:javacomplete_log_level
 endfu
 
 fu! javacomplete#GetLogContent()
