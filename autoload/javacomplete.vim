@@ -12,13 +12,13 @@ endif
 
 " constants              {{{1
 " input context type
-let s:CONTEXT_AFTER_DOT    = 1
+let s:CONTEXT_AFTER_DOT     = 1
 let s:CONTEXT_METHOD_PARAM  = 2
-let s:CONTEXT_IMPORT    = 3
-let s:CONTEXT_IMPORT_STATIC  = 4
+let s:CONTEXT_IMPORT        = 3
+let s:CONTEXT_IMPORT_STATIC = 4
 let s:CONTEXT_PACKAGE_DECL  = 6 
-let s:CONTEXT_NEED_TYPE    = 7 
-let s:CONTEXT_OTHER     = 0
+let s:CONTEXT_NEED_TYPE     = 7 
+let s:CONTEXT_OTHER         = 0
 
 
 let s:ARRAY_TYPE_MEMBERS = [
@@ -62,9 +62,9 @@ let s:JSP_BUILTIN_OBJECTS = {'session':  'javax.servlet.http.HttpSession',
 
 
 let s:PRIMITIVE_TYPES  = ['boolean', 'byte', 'char', 'int', 'short', 'long', 'float', 'double']
-let s:KEYWORDS_MODS  = ['public', 'private', 'protected', 'static', 'final', 'synchronized', 'volatile', 'transient', 'native', 'strictfp', 'abstract']
-let s:KEYWORDS_TYPE  = ['class', 'interface', 'enum']
-let s:KEYWORDS    = s:PRIMITIVE_TYPES + s:KEYWORDS_MODS + s:KEYWORDS_TYPE + ['super', 'this', 'void'] + ['assert', 'break', 'case', 'catch', 'const', 'continue', 'default', 'do', 'else', 'extends', 'finally', 'for', 'goto', 'if', 'implements', 'import', 'instanceof', 'interface', 'new', 'package', 'return', 'switch', 'throw', 'throws', 'try', 'while', 'true', 'false', 'null']
+let s:KEYWORDS_MODS    = ['public', 'private', 'protected', 'static', 'final', 'synchronized', 'volatile', 'transient', 'native', 'strictfp', 'abstract']
+let s:KEYWORDS_TYPE    = ['class', 'interface', 'enum']
+let s:KEYWORDS         = s:PRIMITIVE_TYPES + s:KEYWORDS_MODS + s:KEYWORDS_TYPE + ['super', 'this', 'void'] + ['assert', 'break', 'case', 'catch', 'const', 'continue', 'default', 'do', 'else', 'extends', 'finally', 'for', 'goto', 'if', 'implements', 'import', 'instanceof', 'interface', 'new', 'package', 'return', 'switch', 'throw', 'throws', 'try', 'while', 'true', 'false', 'null']
 
 let s:PATH_SEP  = ':'
 let s:FILE_SEP  = '/'
@@ -73,17 +73,17 @@ if has("win32") || has("win64") || has("win16") || has("dos32") || has("dos16")
   let s:FILE_SEP  = '\'
 endif
 
-let s:RE_BRACKETS  = '\%(\s*\[\s*\]\)'
+let s:RE_BRACKETS    = '\%(\s*\[\s*\]\)'
 let s:RE_IDENTIFIER  = '[a-zA-Z_$][a-zA-Z0-9_$]*'
-let s:RE_QUALID    = s:RE_IDENTIFIER. '\%(\s*\.\s*' .s:RE_IDENTIFIER. '\)*'
+let s:RE_QUALID      = s:RE_IDENTIFIER. '\%(\s*\.\s*' .s:RE_IDENTIFIER. '\)*'
 
 let s:RE_REFERENCE_TYPE  = s:RE_QUALID . s:RE_BRACKETS . '*'
-let s:RE_TYPE    = s:RE_REFERENCE_TYPE
+let s:RE_TYPE            = s:RE_REFERENCE_TYPE
 
-let s:RE_TYPE_ARGUMENT  = '\%(?\s\+\%(extends\|super\)\s\+\)\=' . s:RE_TYPE
+let s:RE_TYPE_ARGUMENT   = '\%(?\s\+\%(extends\|super\)\s\+\)\=' . s:RE_TYPE
 let s:RE_TYPE_ARGUMENTS  = '<' . s:RE_TYPE_ARGUMENT . '\%(\s*,\s*' . s:RE_TYPE_ARGUMENT . '\)*>'
 let s:RE_TYPE_WITH_ARGUMENTS_I  = s:RE_IDENTIFIER . '\s*' . s:RE_TYPE_ARGUMENTS
-let s:RE_TYPE_WITH_ARGUMENTS  = s:RE_TYPE_WITH_ARGUMENTS_I . '\%(\s*' . s:RE_TYPE_WITH_ARGUMENTS_I . '\)*'
+let s:RE_TYPE_WITH_ARGUMENTS    = s:RE_TYPE_WITH_ARGUMENTS_I . '\%(\s*' . s:RE_TYPE_WITH_ARGUMENTS_I . '\)*'
 
 let s:RE_TYPE_MODS  = '\%(public\|protected\|private\|abstract\|static\|final\|strictfp\)'
 let s:RE_TYPE_DECL_HEAD  = '\(class\|interface\|enum\)[ \t\n\r]\+'
@@ -97,10 +97,10 @@ let s:RE_CASTING  = '^\s*(\(' .s:RE_QUALID. '\))\s*\(' . s:RE_IDENTIFIER . '\)\>
 let s:RE_KEYWORDS  = '\<\%(' . join(s:KEYWORDS, '\|') . '\)\>'
 
 " script variables            {{{1
-let s:cache = {}  " FQN -> member list, e.g. {'java.lang.StringBuffer': classinfo, 'java.util': packageinfo, '/dir/TopLevelClass.java': compilationUnit}
-let s:files = {}  " srouce file path -> properties, e.g. {filekey: {'unit': compilationUnit, 'changedtick': tick, }}
+let s:cache   = {}  " FQN -> member list, e.g. {'java.lang.StringBuffer': classinfo, 'java.util': packageinfo, '/dir/TopLevelClass.java': compilationUnit}
+let s:files   = {}  " srouce file path -> properties, e.g. {filekey: {'unit': compilationUnit, 'changedtick': tick, }}
 let s:history = {}  " 
-let s:log = []
+let s:log     = []
 
 " This function is used for the 'omnifunc' option.    {{{1
 function! javacomplete#Complete(findstart, base)
@@ -108,6 +108,8 @@ function! javacomplete#Complete(findstart, base)
   call s:Trace('***************************************')
   call s:Trace('*     javacomplete#Complete start     *')
   call s:Trace('***************************************')
+  call s:Trace('findstart : ' . a:findstart)
+  call s:Trace('base      : ' . a:base)
 
   " local variables            {{{1
   if !exists('b:context_type')
@@ -2128,7 +2130,11 @@ fu! javacomplete#GetLogLevel()
   return exists('s:loglevel') ? s:loglevel : g:javacomplete_log_level
 endfu
 
-fu! javacomplete#GetLogContent()
+fu! javacomplete#clear_log()
+  let s:log = []
+  echo 'cleard log'
+endfu
+fu! javacomplete#log()
   return s:log
 endfu
 
