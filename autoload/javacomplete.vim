@@ -100,10 +100,15 @@ let s:RE_KEYWORDS	= '\<\%(' . join(s:KEYWORDS, '\|') . '\)\>'
 let s:cache = {}	" FQN -> member list, e.g. {'java.lang.StringBuffer': classinfo, 'java.util': packageinfo, '/dir/TopLevelClass.java': compilationUnit}
 let s:files = {}	" srouce file path -> properties, e.g. {filekey: {'unit': compilationUnit, 'changedtick': tick, }}
 let s:history = {}	" 
-
+let s:log = []
 
 " This function is used for the 'omnifunc' option.		{{{1
 function! javacomplete#Complete(findstart, base)
+
+  call s:Trace('***************************************')
+  call s:Trace('*     javacomplete#Complete start     *')
+  call s:Trace('***************************************')
+
   " local variables						{{{1
   if !exists('b:context_type')
     let b:context_type = s:CONTEXT_OTHER
@@ -122,7 +127,6 @@ function! javacomplete#Complete(findstart, base)
   if a:findstart
     let s:et_whole = reltime()
     let start = col('.') - 1
-    let s:log = []
 
     " reset enviroment
     let b:dotexpr = ''
@@ -1532,7 +1536,6 @@ fu! javacomplete#Searchdecl()
   " this.field
   " super.field
 
-  let s:log = []
 
 
   " It may be an imported class.
@@ -2143,7 +2146,7 @@ endfu
 
 fu! s:Log(level, key, ...)
   if a:level >= javacomplete#GetLogLevel()
-    echo a:key
+"    echo a:key
     call add(s:log, a:key)
   endif
 endfu
@@ -2458,6 +2461,7 @@ fu! s:DoGetClassInfo(class, ...)
     endif
   endfor
 
+  call s:Trace('java.lang complete')
   let fqns = ['java.lang.' . typename]
   call s:DoGetTypeInfoForFQN(fqns, srcpath)
   for fqn in fqns
