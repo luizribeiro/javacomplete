@@ -2448,6 +2448,14 @@ fu! s:DoGetClassInfo(class, ...)
     endif
   endfor
 
+  let fqns = ['java.lang.' . typename]
+  call s:DoGetTypeInfoForFQN(fqns, srcpath)
+  for fqn in fqns
+    if has_key(s:cache, fqn)
+      return get(s:cache[fqn], 'tag', '') == 'CLASSDEF' ? s:cache[fqn] : {}
+    endif
+  endfor
+
   return {}
 endfu
 
