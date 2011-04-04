@@ -183,7 +183,7 @@ function! s:findstart()
   let b:context_type = s:CONTEXT_OTHER
 
   let statement = s:get_statement()
-  call s:watch('statement: "' . statement . '"')
+  call s:trace('statement: "' . statement . '"')
 
   if statement =~ '[.0-9A-Za-z_]\s*$'
     let valid = 1
