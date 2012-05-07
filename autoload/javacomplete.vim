@@ -382,7 +382,7 @@ fu! s:complete_after_word(incomplete)
     for dirpath in s:get_source_dirs(expand('%:p'))
       let filepatterns .= escape(dirpath, ' \') . '/*.java '
     endfor
-    exe 'vimgrep /\s*' . s:RE_TYPE_DECL . '/jg ' . filepatterns
+    exe 'silent vimgrep /\s*' . s:RE_TYPE_DECL . '/jg ' . filepatterns
     for item in getqflist()
       if item.text !~ '^\s*\*\s\+'
         let text = matchstr(s:prune(item.text, -1), '\s*' . s:RE_TYPE_DECL)
@@ -2292,7 +2292,7 @@ fu! s:get_fqn(fqns, srcpath, ...)
 
     let cwd = fnamemodify(expand('%:p:h'), ':p:h:gs?[\\/]\+?/?')
 	try
-	  exe 'vimgrep /\s*' . s:RE_TYPE_DECL . '/jg ' . filepatterns
+	  exe 'silent vimgrep /\s*' . s:RE_TYPE_DECL . '/jg ' . filepatterns
 	  for item in getqflist()
 		if item.text !~ '^\s*\*\s\+'
 		  let text = matchstr(s:prune(item.text, -1), '\s*' . s:RE_TYPE_DECL)
