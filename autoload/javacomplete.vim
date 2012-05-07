@@ -2291,21 +2291,25 @@ fu! s:get_fqn(fqns, srcpath, ...)
     endfor
 
     let cwd = fnamemodify(expand('%:p:h'), ':p:h:gs?[\\/]\+?/?')
-    exe 'vimgrep /\s*' . s:RE_TYPE_DECL . '/jg ' . filepatterns
-    for item in getqflist()
-      if item.text !~ '^\s*\*\s\+'
-        let text = matchstr(s:prune(item.text, -1), '\s*' . s:RE_TYPE_DECL)
-        if text != ''
-          let subs = split(substitute(text, '\s*' . s:RE_TYPE_DECL, '\1;\2;\3', ''), ';', 1)
-          let dirpath = fnamemodify(bufname(item.bufnr), ':p:h:gs?[\\/]\+?/?')
-          let idents = dirs[dirpath].idents
-          if index(idents, subs[2]) >= 0 && (subs[0] =~ '\C\<public\>' || dirpath == cwd)  " FIXME?
-            let item.subs = subs
-            let dirs[dirpath].qfitems = get(dirs[dirpath], 'qfitems', []) + [item]
-          endif
-        endif
-      endif
-    endfor
+	try
+	  exe 'vimgrep /\s*' . s:RE_TYPE_DECL . '/jg ' . filepatterns
+	  for item in getqflist()
+		if item.text !~ '^\s*\*\s\+'
+		  let text = matchstr(s:prune(item.text, -1), '\s*' . s:RE_TYPE_DECL)
+		  if text != ''
+			let subs = split(substitute(text, '\s*' . s:RE_TYPE_DECL, '\1;\2;\3', ''), ';', 1)
+			let dirpath = fnamemodify(bufname(item.bufnr), ':p:h:gs?[\\/]\+?/?')
+			let idents = dirs[dirpath].idents
+			if index(idents, subs[2]) >= 0 && (subs[0] =~ '\C\<public\>' || dirpath == cwd)  " FIXME?
+			  let item.subs = subs
+			  let dirs[dirpath].qfitems = get(dirs[dirpath], 'qfitems', []) + [item]
+			endif
+		  endif
+		endif
+	  endfor
+	catch /^Vim\%((\a\+)\)\=:E480/ " No match
+	  " Just ignore it
+	endtry
 
     for dirpath in keys(dirs)
       " a. names of nested type must be existed in the same file
